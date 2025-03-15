@@ -1,0 +1,48 @@
+﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="1.0.0">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="inputstream.adaptive" version="19.0.0"/>
+    <import addon="script.module.inputstreamhelper" version="0.5.8"/>
+    <import addon="script.module.requests"/>
+    <import addon="script.module.websocket" version="0.5.8"/>
+  </requires>
+  <extension library="main.py" point="xbmc.python.pluginsource">
+    <provides>video</provides>
+  </extension>
+  <extension library="service.py" point="xbmc.service"/>
+  <extension point="kodi.context.item">
+    <menu id="kodi.core.main">
+      <item library="iptvsc_rec.py">
+          <label>Nahrát ve Oneplay</label>
+          <visible>
+            Window.IsActive(10702)
+          </visible>
+      </item> 
+    </menu>         
+  </extension>  
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Oneplay</summary>
+    <summary lang="cs_CZ">Oneplay</summary>
+    <description lang="en_GB">
+[B]Doplněk pro Oneplay[/B]
+VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPTV Simple Clienta
+
+Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-kodi.cz/prispevek-oneplay)
+    </description>
+    <description lang="cs_CZ">
+[B]Doplněk pro Oneplay[/B]
+VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPTV Simple Clienta
+
+Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-kodi.cz/prispevek-oneplay)
+    </description>
+    <platform>all</platform>
+    <source>https://github.com/waladir/plugin.video.oneplay</source>
+    <news>
+1.0.0 (16.03.2025)
+- první verze
+    </news>
+    <assets>
+        <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>
