@@ -26,7 +26,7 @@ def play_catchup(id, start_ts, end_ts):
         else:
             play_archive(id = epg[start_ts]['id'])
     else:
-        play_live(id, 'live')
+        play_live(id, 'start')
 
 def play_live(id, mode):
     addon = xbmcaddon.Addon()

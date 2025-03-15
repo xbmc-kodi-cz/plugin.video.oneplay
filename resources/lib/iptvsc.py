@@ -82,12 +82,11 @@ def generate_playlist(output_file = ''):
         file.close()
         xbmcgui.Dialog().notification('Oneplay', 'Chyba při uložení playlistu', xbmcgui.NOTIFICATION_ERROR, 5000)
 
-def generate_epg(output_file = ''):
+def generate_epg(output_file = '', show_progress = True):
     addon = xbmcaddon.Addon()
     channels = Channels()
     channels_list = channels.get_channels_list('channel_number')
     channels_list_by_id = channels.get_channels_list('id')
-
     if len(channels_list) > 0:
         if save_file_test() == 0:
             xbmcgui.Dialog().notification('Oneplay', 'Chyba při uložení EPG', xbmcgui.NOTIFICATION_ERROR, 5000)
@@ -117,7 +116,14 @@ def generate_epg(output_file = ''):
                 today_date = datetime.today() 
                 today_start_ts = int(time.mktime(datetime(today_date.year, today_date.month, today_date.day) .timetuple()))
                 today_end_ts = today_start_ts + 60*60*24 - 1
+                if show_progress == True:
+                    dialog = xbmcgui.DialogProgressBG()
+                    dialog.create('Stahování EPG dat')
+                i = 0
                 for day in range(int(addon.getSetting('epg_from'))*-1, int(addon.getSetting('epg_to')), 1):
+                    i = i + 1
+                    if show_progress == True:
+                        dialog.update(int(i/(int(addon.getSetting('epg_from'))+int(addon.getSetting('epg_to'))+1)*100))
                     cnt = 0
                     content = ''
                     epg = get_day_epg(today_start_ts + day*60*60*24, today_end_ts + day*60*60*24)
@@ -139,10 +145,14 @@ def generate_epg(output_file = ''):
                     file.write(bytearray((content).encode('utf-8')))                          
                 file.write(bytearray(('</tv>\n').encode('utf-8')))
                 file.close()
-                if addon.getSetting('epg_info') == 'true':
+                if show_progress == True:
+                    dialog.close()
+                if show_progress == True or addon.getSetting('epg_info') == 'true':
                     xbmcgui.Dialog().notification('Oneplay', 'EPG bylo uložené', xbmcgui.NOTIFICATION_INFO, 5000)    
         except Exception:
             file.close()
+            if show_progress == True:
+                dialog.close()
             xbmcgui.Dialog().notification('Oneplay', 'Chyba při generování EPG!', xbmcgui.NOTIFICATION_ERROR, 5000)
     else:
         xbmcgui.Dialog().notification('Oneplay', 'Nevrácena žádná data!', xbmcgui.NOTIFICATION_ERROR, 5000)

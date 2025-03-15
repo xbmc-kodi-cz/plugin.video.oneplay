@@ -205,7 +205,7 @@ def router(paramstring):
                 xbmcplugin.addDirectoryItem(_handle, '1', xbmcgui.ListItem())
                 xbmcplugin.endOfDirectory(_handle, succeeded = True)
             else:
-                generate_epg()
+                generate_epg(show_progress = True)
         elif params['action'] == 'iptsc_play_stream':
             if 'catchup_start_ts' in params and 'catchup_end_ts' in params:
                 play_catchup(id = params['id'], start_ts = params['catchup_start_ts'], end_ts = params['catchup_end_ts'])
