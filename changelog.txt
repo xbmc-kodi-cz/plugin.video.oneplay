@@ -1,2 +1,7 @@
+1.0.1 (16.03.2025)
+- oprava změny čísel kanálů
+- přidání položek InputStream Helperu do nastavení
+- doplněna možnost přetáčení u živého vysílání z IPTV SC
+
 1.0.0 (16.03.2025)
 - první verze

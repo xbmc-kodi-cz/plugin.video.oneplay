@@ -64,7 +64,6 @@ def list_channels_edit(label):
         xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
 
 def edit_channel(id):
-    id = int(id)
     channels = Channels()
     channels_list = channels.get_channels_list('id', visible_filter = False)
     new_num = xbmcgui.Dialog().numeric(0, 'Číslo kanálu', str(channels_list[id]['channel_number']))
@@ -249,18 +248,15 @@ class Channels:
         self.load_channels()
 
     def set_visibility(self, id, visibility):
-        id = int(id)
         self.channels[id].update({'visible' : visibility})
         self.save_channels()
 
     def set_number(self, id, number):
-        id = int(id)
         if id in self.channels:
             self.channels[id].update({'channel_number' : int(number)})
         self.save_channels()
 
     def delete_channel(self, id):
-        id = int(id)
         if id in self.channels:
             del self.channels[id]
         self.save_channels()
@@ -307,7 +303,7 @@ class Channels:
             else:
                 image = None
                 imagesq = None
-            channels.update({int(channel['id']) : {'channel_number' : int(channel['order']), 'oneplay_number' : int(channel['order']), 'name' : channel['name'], 'id' : channel['id'], 'logo' : image, 'logosq' : imagesq, 'adult' : channel['adult'] , 'visible' : True}})
+            channels.update({channel['id'] : {'channel_number' : int(channel['order']), 'oneplay_number' : int(channel['order']), 'name' : channel['name'], 'id' : channel['id'], 'logo' : image, 'logosq' : imagesq, 'adult' : channel['adult'] , 'visible' : True}})
         return channels
 
     def load_channels(self):
@@ -321,7 +317,7 @@ class Channels:
                 for channel in channels:
                     if 'adult' not in channels[channel]:
                         channels[channel]['adult'] = False
-                    self.channels.update({int(channel) : channels[channel]})
+                    self.channels.update({channels[channel]['id'] : channels[channel]})
             else:
                 self.channels = {}
                 self.valid_to = -1
