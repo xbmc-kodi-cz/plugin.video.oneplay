@@ -81,8 +81,17 @@ def list_category(id, carouselId, criteria, label):
                                 list_item.setArt({'thumb': image, 'icon': image})    
                                 url = get_url(action='list_category', id = item['action']['params']['payload']['categoryId'], criteria = encode(criteria), label = label + ' / ' + item['title'])  
                                 xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+                            elif item['action']['params']['schema'] == 'ContentPlayApiAction':
+                                list_item = xbmcgui.ListItem(label = item['title'])
+                                image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
+                                list_item.setArt({'thumb': image, 'icon': image})    
+                                list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
+                                list_item.setContentLookup(False)          
+                                list_item.setProperty('IsPlayable', 'true')
+                                url = get_url(action = 'play_archive', id = item['action']['params']['payload']['criteria']['contentId'])
+                                xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
                             else:
-                                xbmcgui.Dialog().notification('Oneplay','Neznámá položka: ' + item['action']['params']['scheema'], xbmcgui.NOTIFICATION_INFO, 2000)                                    
+                                xbmcgui.Dialog().notification('Oneplay','Neznámá položka: ' + item['action']['params']['schema'], xbmcgui.NOTIFICATION_INFO, 2000)                                    
                         if carousel['paging']['next'] == True:
                             list_item = xbmcgui.ListItem(label='Následující strana')
                             url = get_url(action='list_carousel', id = carousel['id'], criteria = encode(criteria), page = 2, label = label)  

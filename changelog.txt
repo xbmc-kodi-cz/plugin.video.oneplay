@@ -1,3 +1,6 @@
+1.0.2 (17.03.2025)
+- přidání zobrazení nového typu kategorie + oprava chyby u neznámého typu položky
+
 1.0.1 (16.03.2025)
 - oprava změny čísel kanálů
 - přidání položek InputStream Helperu do nastavení
