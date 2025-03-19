@@ -102,6 +102,7 @@ def list_category(id, carouselId, criteria, label):
 def list_season(carouselId, id, page, label):
     page = int(page)    
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, "episodes")
     addon = xbmcaddon.Addon()
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
     session = Session()
