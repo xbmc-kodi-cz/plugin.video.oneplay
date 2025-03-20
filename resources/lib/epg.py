@@ -1,5 +1,16 @@
 # -*- coding: utf-8 -*-
+import os
+
 import xbmc
+import xbmcgui
+import xbmcaddon
+try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
+
+import sqlite3
+import json
 import time
 
 from resources.lib.session import Session
@@ -7,6 +18,46 @@ from resources.lib.api import API
 from resources.lib.utils import get_kodi_version
 
 from datetime import datetime
+
+current_version = 1
+
+def open_db():
+    global db, version
+    addon = xbmcaddon.Addon()
+    addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
+    if not os.path.isdir(addon_userdata_dir):
+        os.mkdir(addon_userdata_dir)
+    db = sqlite3.connect(addon_userdata_dir + 'items_data.db', timeout = 10)
+    db.execute('CREATE TABLE IF NOT EXISTS version (version INTEGER PRIMARY KEY)')
+    db.execute('CREATE TABLE IF NOT EXISTS items (id VARCHAR(255), description TEXT, original VARCHAR(255), cast VARCHAR(255), directors VARCHAR(255), year VARCHAR(255), country VARCHAR(255), genres VARCHAR(255))')
+    row = None
+    for row in db.execute('SELECT version FROM version'):
+        version = row[0]
+    if not row:
+        db.execute('INSERT INTO version VALUES (?)', [current_version])
+        db.commit()     
+        version = current_version
+    if version != current_version:
+        version = migrate_db(version)
+
+def close_db():
+    global db
+    db.close()    
+
+def migrate_db(version):
+    global db
+    return version
+
+def remove_db():
+    addon = xbmcaddon.Addon()
+    addon_userdata_dir = translatePath(addon.getAddonInfo('profile'))
+    filename = os.path.join(addon_userdata_dir, 'items_data.db')
+    if os.path.exists(filename):
+        try:
+            os.remove(filename) 
+            xbmcgui.Dialog().notification('Oneplay', 'Keš dat pořadů byla vymazána', xbmcgui.NOTIFICATION_INFO, 5000)    
+        except IOError:
+            xbmcgui.Dialog().notification('Oneplay', 'Chyba při mazání keše!', xbmcgui.NOTIFICATION_ERROR, 5000)  
 
 def get_live_epg():
     session = Session()
@@ -68,137 +119,83 @@ def get_day_epg(from_ts, to_ts):
                     epg.update({channel['channelId'] + str(startts) : epg_item})
     return epg
 
-# def get_item_epg(id):
-#     session = Session()
-#     post = {"language":"ces","ks":session.ks,"filter":{"objectType":"KalturaSearchAssetFilter","orderBy":"START_DATE_ASC","kSql":"(and epg_id:'" + str(id) + "' asset_type='epg' auto_fill= true)"},"pager":{"objectType":"KalturaFilterPager","pageSize":500,"pageIndex":1},"clientTag":clientTag,"apiVersion":apiVersion}
-#     return epg_api(post = post, key = 'id')[id]
+def get_data_from_api(id):
+    session = Session()
+    api = API()
+    item_detail = {}
+    post = {"payload":{"contentId":id}}
+    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
+    if 'err' not in data:
 
-# def epg_api(post, key, no_md_title = False):
-#     epg = {}
-#     result = oneplay_list_api(post = post, type = 'EPG', nolog = True)
-#     channels = Channels()
-#     channels_list = channels.get_channels_list('id', visible_filter = False)            
-#     for item in result:
-#         if (item['objectType'] == 'KalturaProgramAsset' or item['objectType'] == 'KalturaRecordingAsset') and 'linearAssetId' in item:
-#             id = item['id']
-#             channel_id = item['linearAssetId']
-#             title = item['name']
-#             if 'description' in item:
-#                 description = item['description']
-#             else:
-#                 description = ''
-#             startts = item['startDate']
-#             endts = item['endDate']
+        for block in data['layout']['blocks']:
 
-#             cover = ''
-#             poster = ''
-#             imdb = ''
-#             year = ''
-#             contentType = ''
-#             original = ''
-#             genres = []
-#             cast = []
-#             directors = []
-#             writers = []
-#             country = ''
+            if block['schema'] == 'OnAirContentInfoBlock' and block['template'] == 'fullInfo' and 'additionalContentData' in block and 'lists' in block['additionalContentData']:
+                description = ''
+                cast = []
+                directors = []
+                genres = []
+                original = ''
+                year = ''
+                country = ''
+                if 'description' in block:
+                    description = block['description']
+                for item in block['additionalContentData']['lists']:
+                    name = item['label']['name'].replace(':','')
+                    if name == 'Hrají':
+                        for value in item['valueList']:
+                            cast.append(value['name'])
+                    elif name == 'Režie':
+                        for value in item['valueList']:
+                            directors.append(value['name'])
+                    elif name == 'Žánr':
+                        for value in item['valueList']:
+                            genres.append(value['name'])
+                    elif name == 'Původní název':
+                        for value in item['valueList']:
+                            original = value['name']
+                    elif name == 'Rok':
+                        for value in item['valueList']:
+                            year = value['name']
+                    elif name == 'Země původu':
+                        for value in item['valueList']:
+                            country = value['name']
+                    # else:
+                    #     print(name)
+                    #     print(item['valueList'])     
+                item_detail = {'description' : description, 'original' : original, 'year' : year, 'genres' : genres, 'cast' : cast, 'directors' : directors, 'country' : country}
+    return item_detail
 
-#             ratios = {'2x3' : '/height/720/width/480', '3x2' : '/height/480/width/720', '16x9' : '/height/480/width/853'}
-#             if len(item['images']) > 0:
-#                 poster = item['images'][0]['url'] + ratios[item['images'][0]['ratio']]
-#             if len(item['images']) > 1:
-#                 cover = item['images'][1]['url'] + ratios[item['images'][1]['ratio']]
-#             if 'original_name' in item['metas']:
-#                 original = item['metas']['original_name']['value']
-#             if 'imdb_id' in item['metas']:
-#                 imdb = str(item['metas']['imdb_id']['value'])
-#             if 'Year' in item['metas']:
-#                 year = str(item['metas']['Year']['value'])
-#             if 'ContentType' in item['metas']:
-#                 contentType = item['metas']['ContentType']['value']
-#             if 'Genre' in item['tags']:
-#                 for genre in item['tags']['Genre']['objects']:
-#                     genres.append(genre['value'])
-#             if 'PersonReference' in item['tags']:
-#                 for person in item['tags']['PersonReference']['objects']:
-#                     person_data = person['value'].split('|')
-#                     if len(person_data) < 3:
-#                         person_data.append('')
-#                     cast.append((person_data[1], person_data[2]))
-#             if 'Director' in item['tags']:
-#                 for director in item['tags']['Director']['objects']:
-#                     directors.append(director['value'])
-#             if 'Writers' in item['tags']:
-#                 for writer in item['tags']['Writers']['objects']:
-#                     writers.append(writer['value'])
-#             if 'Country' in item['tags'] and 'value' in item['tags']['Country']:
-#                 country = item['tags']['Country']['value']
-
-#             episodeNumber = -1
-#             seasonNumber = -1
-#             episodesInSeason = -1
-#             episodeName = ''
-#             seasonName = ''
-#             seriesName = ''    
-
-#             if 'EpisodeNumber' in item['metas']:
-#                 episodeNumber = int(item['metas']['EpisodeNumber']['value'])
-#                 if episodeNumber > 0:
-#                     title = title + ' (' + str(episodeNumber) + ')'
-#             if 'SeasonNumber' in item['metas']:
-#                 seasonNumber = int(item['metas']['SeasonNumber']['value'])
-#             if 'EpisodeInSeason' in item['metas']:
-#                 episodesInSeason = int(item['metas']['EpisodeInSeason']['value'])
-#             if 'EpisodeName' in item['metas']:
-#                 episodeName = item['metas']['EpisodeName']['value']
-#             if 'SeasonName' in item['metas']:
-#                 seasonName = item['metas']['SeasonName']['value']
-#             if 'SeriesName' in item['metas']:
-#                 seriesName = item['metas']['SeriesName']['value']
-
-#             if 'IsSeries' in item['metas'] and int(item['metas']['IsSeries']['value']) == 1:
-#                 isSeries = True
-#                 if 'SeriesID' in item['metas']:
-#                     seriesId = item['metas']['SeriesID']['value']
-#                 else:
-#                     seriesId = ''
-#             else:
-#                 isSeries = False
-#                 seriesId = ''
-#             md = None
-#             md_ids = []
-#             if 'MosaicInfo' in item['tags']:
-#                 session = Session()
-#                 for mditem in item['tags']['MosaicInfo']['objects']:
-#                     if 'MosaicProgramExternalId' in mditem['value']:
-#                         md = mditem['value'].replace('MosaicProgramExternalId=', '')
-#                         md_post = {"language":"ces","ks":session.ks,"filter":{"objectType":"KalturaSearchAssetFilter","orderBy":"START_DATE_ASC","kSql":"(and IsMosaicEvent='1' MosaicInfo='mosaic' (or externalId='" + str(md) + "'))"},"pager":{"objectType":"KalturaFilterPager","pageSize":200,"pageIndex":1},"clientTag":clientTag,"apiVersion":apiVersion}
-#                         if no_md_title == False:
-#                             md_epg = oneplay_list_api(post = md_post, type = 'multidimenze', nolog = True)
-#                             if len(md_epg) > 0 and 'name' in md_epg[0]:
-#                                 title = md_epg[0]['name']
-
-#             if 'MosaicChannelsInfo' in item['tags']:
-#                 for mditem in item['tags']['MosaicChannelsInfo']['objects']:
-#                     if 'ProgramExternalID' in mditem['value']:
-#                         md_ids.append(mditem['value'].split('ProgramExternalID=')[1])
-#             epg_item = {'id' : id, 'title' : title, 'channel_id' : channel_id, 'description' : description, 'startts' : startts, 'endts' : endts, 'cover' : cover, 'poster' : poster, 'original' : original, 'imdb' : imdb, 'year' : year, 'contentType' : contentType, 'genres' : genres, 'cast' : cast, 'directors' : directors, 'writers' : writers, 'country' : country, 'episodeNumber' : episodeNumber, 'seasonNumber' : seasonNumber, 'episodesInSeason' : episodesInSeason, 'episodeName' : episodeName, 'seasonName' : seasonName, 'seriesName' : seriesName, 'isSeries' : isSeries, 'seriesId' : seriesId, 'md' : md, 'md_ids' : md_ids}
-#             if key == 'startts':
-#                 epg.update({startts : epg_item})
-#             elif key == 'channel_id':
-#                 epg.update({channel_id : epg_item})
-#             elif key == 'id':
-#                 epg.update({id : epg_item})
-#             elif key == 'startts_channel_number':
-#                 if channel_id in channels_list:
-#                     epg.update({int(str(startts)+str(channels_list[channel_id]['channel_number']).zfill(5))  : epg_item})
-#     return epg
+def get_item_detail(id):
+    global db
+    item_detail = {}
+    addon = xbmcaddon.Addon()
+    if addon.getSetting('item_details') == 'true':
+        open_db()
+        row = None
+        for row in db.execute('SELECT description, original, "cast", directors, year, country, genres FROM items WHERE id = ?', [id]):
+            description = row[0]
+            original = row[1]
+            cast = json.loads(row[2])
+            directors = json.loads(row[3])
+            year = row[4]
+            country = row[5]
+            genres = json.loads(row[6])
+        if not row:
+            item_detail = get_data_from_api(id)
+            if len(item_detail) > 0:
+                db.execute('INSERT INTO items VALUES(?, ?, ?, ?, ?, ?, ?, ?)', (id, item_detail['description'], item_detail['original'], json.dumps(item_detail['cast']), json.dumps(item_detail['directors']), item_detail['year'], item_detail['country'], json.dumps(item_detail['genres'])))      
+                db.commit()            
+        else:
+            item_detail = {'description' : description, 'original' : original, 'year' : year, 'genres' : genres, 'cast' : cast, 'directors' : directors, 'country' : country}
+        close_db()            
+    else:
+        item_detail = get_data_from_api(id)
+    return item_detail    
 
 def epg_listitem(list_item, epg, icon):
     cast = []
     directors = []
-    writers = []
     genres = []
-
     kodi_version = get_kodi_version()
     if kodi_version >= 20:
         infotag = list_item.getVideoInfoTag()
@@ -214,19 +211,14 @@ def epg_listitem(list_item, epg, icon):
             if icon == '':
                 icon = epg['cover']
             list_item.setArt({'thumb': epg['cover'], 'icon': icon})
-    else:
+    elif icon is not None:
         list_item.setArt({'thumb': icon, 'icon': icon})    
     if 'description' in epg and len(epg['description']) > 0:
         if kodi_version >= 20:
             infotag.setPlot(epg['description'])
         else:
             list_item.setInfo('video', {'plot': epg['description']})
-    if 'imdb' in epg and len(epg['imdb']) > 0:
-        if kodi_version >= 20:
-            infotag.setIMDBNumber(epg['imdb'])
-        else:
-            list_item.setInfo('video', {'imdbnumber': epg['imdb']})
-    if 'year' in epg and len(str(epg['year'])) > 0:
+    if 'year' in epg and len(str(epg['year'])) > 0 and epg['year'].isdigit():
         if kodi_version >= 20:
             infotag.setYear(int(epg['year']))
         else:
@@ -251,7 +243,7 @@ def epg_listitem(list_item, epg, icon):
     if 'cast' in epg and len(epg['cast']) > 0:
         for person in epg['cast']: 
             if kodi_version >= 20:
-                cast.append(xbmc.Actor(person[0], person[1]))
+                cast.append(xbmc.Actor(person))
             else:
                 cast.append(person)
         if kodi_version >= 20:
@@ -265,32 +257,5 @@ def epg_listitem(list_item, epg, icon):
             infotag.setDirectors(directors)
         else:
             list_item.setInfo('video', {'director' : directors})  
-    if 'writers' in epg and len(epg['writers']) > 0:
-        for person in epg['writers']:      
-            writers.append(person)
-        if kodi_version >= 20:
-            infotag.setWriters(writers)
-        else:
-            list_item.setInfo('video', {'writer' : writers})  
-    if 'episodeNumber' in epg and epg['episodeNumber'] != None and int(epg['episodeNumber']) > 0:
-        if kodi_version >= 20:
-            infotag.setEpisode(int(epg['episodeNumber']))
-        else:
-            list_item.setInfo('video', {'mediatype': 'episode', 'episode' : int(epg['episodeNumber'])}) 
-    if 'episodeName' in epg and epg['episodeName'] != None and len(epg['episodeName']) > 0:
-        if kodi_version >= 20:
-            infotag.setEpisodeGuide(epg['episodeName'])
-        else:
-            list_item.setInfo('video', {'title' : epg['episodeName']})  
-    if 'seriesName' in epg and epg['seriesName'] != None and len(epg['seriesName']) > 0:
-        if kodi_version >= 20:
-            infotag.addSeason(int(epg['seasonNumber']), epg['seriesName'])
-        else:
-            list_item.setInfo('video', {'tvshowtitle' : epg['seriesName']})  
-    if 'seasonNumber' in epg and epg['seasonNumber'] != None and int(epg['seasonNumber']) > 0:
-        if kodi_version >= 20:
-            infotag.setSeason(int(epg['seasonNumber']))
-        else:
-            list_item.setInfo('video', {'season' : int(epg['seasonNumber'])})  
     return list_item
 

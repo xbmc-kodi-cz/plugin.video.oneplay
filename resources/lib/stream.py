@@ -101,7 +101,7 @@ def play_stream(data):
                 else:
                     url_dash = asset['src']
             if asset['protocol'] == 'hls':
-                if 'clear' in asset['src']:
+                if 'drm' not in asset:
                     url_hls = asset['src']
         if url_dash is not None:
             list_item = xbmcgui.ListItem(path = url_dash)

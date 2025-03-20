@@ -31,7 +31,6 @@ class Session:
         api = API()
         post = {"payload":{"command":{"schema":"LoginWithCredentialsCommand","email":addon.getSetting('username'),"password":addon.getSetting('password')}}}
         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/user.login.step', data = post, sensitive = True)
-
         if 'err' in data or 'step' not in data or ('bearerToken' not in data['step'] and data['step']['schema'] != 'ShowAccountChooserStep'):
             xbmcgui.Dialog().notification('Oneplay','Problém při přihlášení', xbmcgui.NOTIFICATION_ERROR, 5000)
             sys.exit()

@@ -14,13 +14,12 @@ try:
 except ImportError:
     from urllib.parse import quote  
 
-from datetime import datetime
 
-from resources.lib.utils import get_url, plugin_id, day_translation_short, encode
+from resources.lib.utils import get_url, plugin_id
 from resources.lib.session import Session
 from resources.lib.channels import Channels
 from resources.lib.api import API
-from resources.lib.epg import epg_listitem
+from resources.lib.epg import get_item_detail, epg_listitem
 
 _handle = int(sys.argv[1])
 
@@ -39,6 +38,7 @@ def list_search(label):
 
 def program_search(query, label):
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'movies')
     if query == '-----':
         input = xbmc.Keyboard('', 'Hledat')
         input.doModal()
@@ -52,8 +52,6 @@ def program_search(query, label):
             save_search_history(query)
     session = Session()
     api = API()
-    channels = Channels()
-    channels_list = channels.get_channels_list(visible_filter = True)
     
     post = {"payload":{"query":query}}
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.search.display', data = post, session = session)    
@@ -65,18 +63,16 @@ def program_search(query, label):
                         for carousel in block['carousels']:
                             for item in carousel['tiles']:
                                 if item['action']['params']['schema'] == 'PageContentDisplayApiAction':
+                                    item_detail = get_item_detail(item['action']['params']['payload']['contentId'])
+                                    list_item = xbmcgui.ListItem(label = item['title'])
+                                    image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
+                                    list_item.setArt({'thumb': image, 'icon': image})    
+                                    list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
+                                    list_item = epg_listitem(list_item, item_detail, None)
                                     if item['action']['params']['contentType'] == 'show':
-                                        list_item = xbmcgui.ListItem(label = item['title'])
-                                        image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                        list_item.setArt({'thumb': image, 'icon': image})    
-                                        list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                         url = get_url(action = 'list_show', id = item['action']['params']['payload']['contentId'], label = label + ' / ' + item['title'] )
                                         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
                                     elif item['action']['params']['contentType'] == 'movie':
-                                        list_item = xbmcgui.ListItem(label = item['title'])
-                                        image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                        list_item.setArt({'thumb': image, 'icon': image})    
-                                        list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                         list_item.setContentLookup(False)          
                                         list_item.setProperty('IsPlayable', 'true')
                                         url = get_url(action = 'play_archive', id = item['action']['params']['payload']['contentId'])

@@ -25,6 +25,7 @@ if len(sys.argv) > 1:
 
 def list_recordings(label):
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'tvshows')
     list_item = xbmcgui.ListItem(label='Plánování nahrávek')
     url = get_url(action='list_planning_recordings', label = label + ' / ' + 'Plánování')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)

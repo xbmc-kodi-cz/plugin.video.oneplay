@@ -13,6 +13,7 @@ except ImportError:
 
 from resources.lib.utils import get_url, check_settings
 from resources.lib.live import list_live
+from resources.lib.epg import remove_db
 from resources.lib.archive import list_archive, list_archive_days, list_program
 from resources.lib.iptvsc import generate_playlist, generate_epg, iptv_sc_rec
 from resources.lib.stream import play_live, play_archive, play_catchup
@@ -57,12 +58,6 @@ def main_menu():
     url = get_url(action='list_search', label = 'Vyhledávání')  
     list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'search.png'), 'icon' : os.path.join(icons_dir , 'search.png') })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-
-    if addon.getSetting('download_streams') == 'true':
-        list_item = xbmcgui.ListItem(label='Stahování')
-        url = get_url(action='list_downloads', label = 'Stahování')  
-        list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'downloads.png'), 'icon' : os.path.join(icons_dir , 'downloads.png') })
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
     if addon.getSetting('hide_settings') != 'true':
         list_item = xbmcgui.ListItem(label='Nastavení Oneplay')
@@ -213,6 +208,9 @@ def router(paramstring):
                 play_live(params['id'], 'start')
         elif params['action'] == 'iptv_sc_rec':
             iptv_sc_rec(params['channel'], params['startdatetime'])
+
+        elif params['action'] == 'remove_cache':
+            remove_db()            
 
         else:
             raise ValueError('Neznámý parametr: {0}!'.format(paramstring))

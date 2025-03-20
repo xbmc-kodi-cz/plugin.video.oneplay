@@ -6,6 +6,10 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <a href="https://www.xbmc-kodi.cz/prispevek-oneplay">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 </p>
 <p>
+1.1.0 (20.03.2025)<br>
+- nastavení typu obsahu<br>
+- stahování a kešovaní detailních dat pořadů<br><br>
+
 1.0.2 (17.03.2025)<br>
 - přidání zobrazení nového typu kategorie + oprava chyby u neznámého typu položky<br><br>
 

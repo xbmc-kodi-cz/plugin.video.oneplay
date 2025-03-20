@@ -1,3 +1,7 @@
+1.1.0 (20.03.2025)
+- nastavení typu obsahu
+- stahování a kešovaní detailních dat pořadů
+
 1.0.2 (17.03.2025)
 - přidání zobrazení nového typu kategorie + oprava chyby u neznámého typu položky
 

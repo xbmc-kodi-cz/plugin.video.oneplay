@@ -57,10 +57,9 @@ def list_archive_days(id, label):
 def list_program(id, day_min, label):
     addon = xbmcaddon.Addon()
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
-    channels = Channels()
-    channels_list = channels.get_channels_list('id')
     label = label.replace('Archiv /','')
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'tvshows')
     today_date = datetime.today() 
     today_start_ts = int(time.mktime(datetime(today_date.year, today_date.month, today_date.day) .timetuple()))
     today_end_ts = today_start_ts + 60*60*24 -1

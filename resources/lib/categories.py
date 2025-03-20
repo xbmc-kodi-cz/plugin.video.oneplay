@@ -7,6 +7,7 @@ import xbmcaddon
 
 from resources.lib.session import Session
 from resources.lib.api import API
+from resources.lib.epg import get_item_detail, epg_listitem
 from resources.lib.utils import get_url, encode
 
 _handle = int(sys.argv[1])
@@ -31,6 +32,7 @@ def list_categories(label):
 
 def list_category(id, carouselId, criteria, label):
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'movies')
     addon = xbmcaddon.Addon()
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
     session = Session()
@@ -57,18 +59,16 @@ def list_category(id, carouselId, criteria, label):
                     for carousel in block['carousels']:
                         for item in carousel['tiles']:
                             if item['action']['params']['schema'] == 'PageContentDisplayApiAction':
+                                item_detail = get_item_detail(item['action']['params']['payload']['contentId'])
+                                list_item = xbmcgui.ListItem(label = item['title'])
+                                image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
+                                list_item.setArt({'thumb': image, 'icon': image})    
+                                list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
+                                list_item = epg_listitem(list_item, item_detail, None)
                                 if item['action']['params']['contentType'] == 'show':
-                                    list_item = xbmcgui.ListItem(label = item['title'])
-                                    image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                    list_item.setArt({'thumb': image, 'icon': image})    
-                                    list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                     url = get_url(action = 'list_show', id = item['action']['params']['payload']['contentId'], label = label + ' / ' + item['title'] )
                                     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
                                 elif item['action']['params']['contentType']  in ['movie','epgitem']:
-                                    list_item = xbmcgui.ListItem(label = item['title'])
-                                    image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                    list_item.setArt({'thumb': image, 'icon': image})    
-                                    list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                     list_item.setContentLookup(False)          
                                     list_item.setProperty('IsPlayable', 'true')
                                     url = get_url(action = 'play_archive', id = item['action']['params']['payload']['contentId'])
@@ -102,6 +102,7 @@ def list_category(id, carouselId, criteria, label):
 def list_season(carouselId, id, page, label):
     page = int(page)    
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'episodes')
     addon = xbmcaddon.Addon()
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
     session = Session()
@@ -134,6 +135,7 @@ def list_season(carouselId, id, page, label):
 
 def list_show(id, label):
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'episodes')
     session = Session()
     api = API()
     post = {"payload":{"contentId":id}}
@@ -171,6 +173,7 @@ def list_show(id, label):
 def list_carousel(id, criteria, page, label):
     page = int(page)
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'movies')    
     addon = xbmcaddon.Addon()
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
     session = Session()
@@ -184,18 +187,16 @@ def list_carousel(id, criteria, page, label):
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     for item in data['carousel']['tiles']:
         if 'contentId' in item['action']['params']['payload']:
+            item_detail = get_item_detail(item['action']['params']['payload']['contentId'])
+            list_item = xbmcgui.ListItem(label = item['title'])
+            image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
+            list_item.setArt({'thumb': image, 'icon': image})    
+            list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
+            list_item = epg_listitem(list_item, item_detail, None)        
             if item['action']['params']['contentType'] == 'show':
-                list_item = xbmcgui.ListItem(label = item['title'])
-                image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                list_item.setArt({'thumb': image, 'icon': image})    
-                list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                 url = get_url(action = 'list_show', id = item['action']['params']['payload']['contentId'], label = label + ' / ' + item['title'] )
                 xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
             else:
-                list_item = xbmcgui.ListItem(label = item['title'])
-                image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                list_item.setArt({'thumb': image, 'icon': image})    
-                list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                 list_item.setContentLookup(False)          
                 list_item.setProperty('IsPlayable', 'true')
                 url = get_url(action = 'play_archive', id = item['action']['params']['payload']['contentId'])
