@@ -126,9 +126,7 @@ def get_data_from_api(id):
     post = {"payload":{"contentId":id}}
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
     if 'err' not in data:
-
         for block in data['layout']['blocks']:
-
             if block['schema'] == 'OnAirContentInfoBlock' and block['template'] == 'fullInfo' and 'additionalContentData' in block and 'lists' in block['additionalContentData']:
                 description = ''
                 cast = []

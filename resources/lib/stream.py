@@ -63,11 +63,18 @@ def play_live(id, mode):
         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
         if 'err' in data or 'media' not in data:
             xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)
-    play_stream(data)
+    play_stream(data, mode)
 
 def play_archive(id):
     session = Session()
     api = API()
+    post = {"payload":{"contentId":id}}
+    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
+    if 'err' not in data:
+        for block in data['layout']['blocks']:            
+            if block['schema'] == 'ContentHeaderBlock':
+                if 'mainAction' in block and 'action' in block['mainAction'] and 'criteria' in block['mainAction']['action']['params']['payload'] and 'contentId' in block['mainAction']['action']['params']['payload']['criteria']:
+                    id = block['mainAction']['action']['params']['payload']['criteria']['contentId']
     post = {"payload":{"criteria":{"schema":"ContentCriteria","contentId":id}},"playbackCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","subtitle":{"formats":["vtt"],"locations":["InstreamTrackLocation","ExternalTrackLocation"]},"liveSpecificCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","multipleAudio":False}}}
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
     if 'err' in data or 'media' not in data:
@@ -86,9 +93,9 @@ def play_archive(id):
         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
         if 'err' in data or 'media' not in data:
             xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)
-    play_stream(data)
+    play_stream(data, 'archive')
 
-def play_stream(data):
+def play_stream(data, mode):
     url_dash = None
     url_dash_drm = None
     url_hls = None
@@ -129,8 +136,12 @@ def play_stream(data):
             list_item.setContentLookup(False)       
             xbmcplugin.setResolvedUrl(_handle, True, list_item)
         elif url_hls is not None:
-            list_item = xbmcgui.ListItem(path = url_hls)
-            list_item.setContentLookup(False)       
-            xbmcplugin.setResolvedUrl(_handle, True, list_item)
+            if mode == 'start':
+                if 'playerControl' in data and 'liveControl' in data['playerControl'] and 'channelId' in data['playerControl']['liveControl']:
+                    play_live(data['playerControl']['liveControl']['channelId'].replace('channel.',''), 'live')
+            else:
+                list_item = xbmcgui.ListItem(path = url_hls)
+                list_item.setContentLookup(False)       
+                xbmcplugin.setResolvedUrl(_handle, True, list_item)
     else:
         xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)

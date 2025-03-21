@@ -142,7 +142,14 @@ def list_show(id, label):
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
     for block in data['layout']['blocks']:
         if block['schema'] == 'TabBlock' and block['template'] == 'tabs':
-            data = block
+            for tab in block['tabs']:
+                if tab['label']['name'] == 'Celé díly':
+                    if tab['isActive'] == True:
+                        data = block
+                    else:
+                        post = {"payload":{"tabId":tab['id']}}
+                        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/tab.display', data = post, session = session)
+
     for block in data['layout']['blocks']:
         if block['schema'] == 'CarouselBlock' and block['template'] in ['list','grid']:
             for carousel in block['carousels']:

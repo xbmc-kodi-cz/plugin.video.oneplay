@@ -52,7 +52,7 @@ def program_search(query, label):
             save_search_history(query)
     session = Session()
     api = API()
-    
+
     post = {"payload":{"query":query}}
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.search.display', data = post, session = session)    
     if 'err' not in data:

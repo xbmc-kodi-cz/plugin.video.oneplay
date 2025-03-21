@@ -1,3 +1,8 @@
+1.1.1 (21.03.2025)
+- oprava přehrávání pořadů z TV v kategoriích
+- ošetření výběru sezón ze správné záložky
+- přehrávání kanálů jen s HLS, kde není dostupný startover
+
 1.1.0 (20.03.2025)
 - nastavení typu obsahu
 - stahování a kešovaní detailních dat pořadů
