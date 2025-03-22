@@ -23,17 +23,18 @@ def list_archive(label):
     channels_list = channels.get_channels_list('channel_number')
     cnt = 0
     for number in sorted(channels_list.keys()):  
-        cnt += 1
-        if addon.getSetting('channel_numbers') == 'číslo kanálu':
-            channel_number = str(number) + '. '
-        elif addon.getSetting('channel_numbers') == 'pořadové číslo':
-            channel_number = str(cnt) + '. '
-        else:
-            channel_number = ''
-        list_item = xbmcgui.ListItem(label = channel_number + channels_list[number]['name'])
-        list_item.setArt({'thumb': channels_list[number]['logo'], 'icon': channels_list[number]['logo']})
-        url = get_url(action='list_archive_days', id = channels_list[number]['id'], label = encode(label + ' / ' + channels_list[number]['name']))  
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+        if channels_list[number]['liveOnly'] == False:
+            cnt += 1
+            if addon.getSetting('channel_numbers') == 'číslo kanálu':
+                channel_number = str(number) + '. '
+            elif addon.getSetting('channel_numbers') == 'pořadové číslo':
+                channel_number = str(cnt) + '. '
+            else:
+                channel_number = ''
+            list_item = xbmcgui.ListItem(label = channel_number + channels_list[number]['name'])
+            list_item.setArt({'thumb': channels_list[number]['logo'], 'icon': channels_list[number]['logo']})
+            url = get_url(action='list_archive_days', id = channels_list[number]['id'], label = encode(label + ' / ' + channels_list[number]['name']))  
+            xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
 
 def list_archive_days(id, label):

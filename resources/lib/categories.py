@@ -99,38 +99,32 @@ def list_category(id, carouselId, criteria, label):
                             xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)              
 
-def list_season(carouselId, id, page, label):
-    page = int(page)    
+def list_season(carouselId, id, label):
     xbmcplugin.setPluginCategory(_handle, label)
     xbmcplugin.setContent(_handle, 'episodes')
-    addon = xbmcaddon.Addon()
-    icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
     session = Session()
     api = API()
-    post = {"payload":{"carouselId":carouselId,"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":id,"sortOption":"DESC"}}}
-    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/carousel.display', data = post, session = session)
-    if page > 1:
-        list_item = xbmcgui.ListItem(label='Přechozí strana')
-        url = get_url(action = 'list_season', carouselId = carouselId, id = id, page = page-1, label = label)       
-        list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'previous_arrow.png'), 'icon' : os.path.join(icons_dir , 'previous_arrow.png') })
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-    for item in data['carousel']['tiles']:
-        if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
-            if 'subTitle' in item:
-                item['title'] = item['title'] + ' ' + item['subTitle']
-            list_item = xbmcgui.ListItem(label = item['title'])
-            image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
-            list_item.setArt({'thumb': image, 'icon': image})    
-            list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
-            list_item.setContentLookup(False)          
-            list_item.setProperty('IsPlayable', 'true')
-            url = get_url(action = 'play_archive', id = item['action']['params']['payload']['criteria']['contentId'])
-            xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
-    if data['carousel']['paging']['next'] == True:
-        list_item = xbmcgui.ListItem(label='Následující strana')
-        url = get_url(action = 'list_season', carouselId = carouselId, id = id, page = page+1, label = label)       
-        list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'next_arrow.png'), 'icon' : os.path.join(icons_dir , 'next_arrow.png') })
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+    get_page = True
+    page = 1
+    while get_page == True:
+        post = {"payload":{"carouselId":carouselId,"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":id,"sortOption":"DESC"}}}
+        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/carousel.display', data = post, session = session)
+        for item in data['carousel']['tiles']:
+            if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
+                if 'subTitle' in item:
+                    item['title'] = item['title'] + ' ' + item['subTitle']
+                list_item = xbmcgui.ListItem(label = item['title'])
+                image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
+                list_item.setArt({'thumb': image, 'icon': image})    
+                list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
+                list_item.setContentLookup(False)          
+                list_item.setProperty('IsPlayable', 'true')
+                url = get_url(action = 'play_archive', id = item['action']['params']['payload']['criteria']['contentId'])
+                xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+        if data['carousel']['paging']['next'] == True:
+            page = page + 1
+        else:
+            get_page = False
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)  
 
 def list_show(id, label):
@@ -160,7 +154,7 @@ def list_show(id, label):
                             for item in criteria['items']:           
                                 season_select = True
                                 list_item = xbmcgui.ListItem(label = item['label'])
-                                url = get_url(action = 'list_season', carouselId = carousel['id'], id = item['criteria'], page = 1, label = label + ' / ' + item['label'])
+                                url = get_url(action = 'list_season', carouselId = carousel['id'], id = item['criteria'], label = label + ' / ' + item['label'])
                                 xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
                 if season_select == False:
                     for item in carousel['tiles']:

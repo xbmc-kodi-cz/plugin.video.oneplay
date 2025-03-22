@@ -98,7 +98,7 @@ def router(paramstring):
         elif params['action'] == 'list_show':
             list_show(params['id'], params['label'])
         elif params['action'] == 'list_season':
-            list_season(params['carouselId'], params['id'], params['page'], params['label'])
+            list_season(params['carouselId'], params['id'], params['label'])
 
         elif params['action'] == 'list_recordings':
             list_recordings(params['label'])

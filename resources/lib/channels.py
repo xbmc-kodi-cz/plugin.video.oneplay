@@ -303,7 +303,11 @@ class Channels:
             else:
                 image = None
                 imagesq = None
-            channels.update({channel['id'] : {'channel_number' : int(channel['order']), 'oneplay_number' : int(channel['order']), 'name' : channel['name'], 'id' : channel['id'], 'logo' : image, 'logosq' : imagesq, 'adult' : channel['adult'] , 'visible' : True}})
+            if 'flags' in channel and 'liveOnly' in channel['flags']:
+                liveOnly = True
+            else:
+                liveOnly = False
+            channels.update({channel['id'] : {'channel_number' : int(channel['order']), 'oneplay_number' : int(channel['order']), 'name' : channel['name'], 'id' : channel['id'], 'logo' : image, 'logosq' : imagesq, 'adult' : channel['adult'] , 'liveOnly' : liveOnly, 'visible' : True}})
         return channels
 
     def load_channels(self):
@@ -434,6 +438,8 @@ class Channels:
                     self.channels[channel].update({'logosq' : oneplay_channels[channel]['logosq']})
                 if self.channels[channel]['adult'] != oneplay_channels[channel]['adult']:
                     self.channels[channel].update({'adult' : oneplay_channels[channel]['adult']})
+                if 'liveOnly' not in self.channels[channel] or self.channels[channel]['liveOnly'] != oneplay_channels[channel]['liveOnly']:
+                    self.channels[channel].update({'liveOnly' : oneplay_channels[channel]['liveOnly']})
             else:
                 max_number = max_number + 1
                 oneplay_channels[channel]['channel_number'] = max_number
@@ -441,7 +447,6 @@ class Channels:
         for channel in list(self.channels):
             if channel not in oneplay_channels:
                 del self.channels[channel]
-
 
 class Channels_groups:
     def __init__(self):

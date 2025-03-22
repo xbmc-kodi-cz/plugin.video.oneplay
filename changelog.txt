@@ -1,3 +1,7 @@
+1.1.2 (22.03.2025)
+- vynechání catchupu a archivu, kde je dostupné jen živé vysílání a úprava playlistu
+- zrušení stránkování sezón (načtou se všechny)
+
 1.1.1 (21.03.2025)
 - oprava přehrávání pořadů z TV v kategoriích
 - ošetření výběru sezón ze správné záložky
@@ -14,6 +18,3 @@
 - oprava změny čísel kanálů
 - přidání položek InputStream Helperu do nastavení
 - doplněna možnost přetáčení u živého vysílání z IPTV SC
-
-1.0.0 (16.03.2025)
-- první verze
