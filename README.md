@@ -6,6 +6,11 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <a href="https://www.xbmc-kodi.cz/prispevek-oneplay">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 </p>
 <p>
+1.1.3 (23.03.2025)<br>
+- ošetření chyb v datech pořadů<br>
+- přidané oblíbených položek v kategoriích přes kontextové menu "Přidat do oblíbených Oneplay"<br>
+- přidání položky InputStream Helper pro instalaci Widevine knihovny do nastavení<br><br>
+
 1.1.2 (22.03.2025)<br>
 - vynechání catchupu a archivu, kde je dostupné jen živé vysílání a úprava playlistu<br>
 - zrušení stránkování sezón (načtou se všechny)<br><br>
@@ -21,9 +26,4 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 
 1.0.2 (17.03.2025)<br>
 - přidání zobrazení nového typu kategorie + oprava chyby u neznámého typu položky<br><br>
-
-1.0.1 (16.03.2025)<br>
-- oprava změny čísel kanálů<br>
-- přidání položek InputStream Helperu do nastavení<br>
-- doplněna možnost přetáčení u živého vysílání z IPTV SC<br><br>
 </p>

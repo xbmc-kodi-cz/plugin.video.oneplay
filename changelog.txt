@@ -1,3 +1,8 @@
+1.1.3 (23.03.2025)
+- ošetření chyb v datech pořadů
+- přidané oblíbených položek v kategoriích přes kontextové menu "Přidat do oblíbených Oneplay"
+- přidání položky InputStream Helper pro instalaci Widevine knihovny do nastavení
+
 1.1.2 (22.03.2025)
 - vynechání catchupu a archivu, kde je dostupné jen živé vysílání a úprava playlistu
 - zrušení stránkování sezón (načtou se všechny)
@@ -13,8 +18,3 @@
 
 1.0.2 (17.03.2025)
 - přidání zobrazení nového typu kategorie + oprava chyby u neznámého typu položky
-
-1.0.1 (16.03.2025)
-- oprava změny čísel kanálů
-- přidání položek InputStream Helperu do nastavení
-- doplněna možnost přetáčení u živého vysílání z IPTV SC

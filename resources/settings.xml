@@ -27,6 +27,12 @@
                 <setting label="Generovat playlist" type="action" action="RunPlugin(plugin://plugin.video.oneplay?action=generate_playlist)"/>
                 <setting label="Generovat EPG" type="action" action="RunPlugin(plugin://plugin.video.oneplay?action=generate_epg)"/>
 	</category>    
+	<category label="InputStream Helper/Widevine">
+                <setting label="Zobrazení informací" type="action" action="RunScript(script.module.inputstreamhelper,info)"/>
+                <setting label="Nastavení InputStream Helper" type="action" action="Addon.OpenSettings(script.module.inputstreamhelper)" option="close"/>                              
+                <setting label="(Re)instalovat Widevine CDM" type="action" action="RunScript(script.module.inputstreamhelper,widevine_install)" visible="!system.platform.android"/>  
+                <setting label="Odstranit Widevine CDM..." type="action" action="RunScript(script.module.inputstreamhelper, widevine_remove)" visible="!system.platform.android"/>     
+	</category>    
     <category label="Logování">
                 <setting label="Logování požadavků - URL" type="bool" id="log_request_url" default="false"/>
                 <setting label="Logování odpovědí" type="bool" id="log_response" default="false"/>

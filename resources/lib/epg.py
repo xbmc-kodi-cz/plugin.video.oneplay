@@ -240,10 +240,11 @@ def epg_listitem(list_item, epg, icon):
             list_item.setInfo('video', {'genre' : genres})    
     if 'cast' in epg and len(epg['cast']) > 0:
         for person in epg['cast']: 
-            if kodi_version >= 20:
-                cast.append(xbmc.Actor(person))
-            else:
-                cast.append(person)
+            if len(person) > 0:
+                if kodi_version >= 20:
+                    cast.append(xbmc.Actor(person))
+                else:
+                    cast.append(person)
         if kodi_version >= 20:
             infotag.setCast(cast)
         else:
