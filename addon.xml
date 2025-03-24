@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="1.1.3">
+﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="1.1.4">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="inputstream.adaptive" version="19.0.0"/>
@@ -38,6 +38,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
+1.1.4 (24.03.2025)
+- oprava multidimenze
+
 1.1.3 (23.03.2025)
 - ošetření chyb v datech pořadů
 - přidané oblíbených položek v kategoriích přes kontextové menu "Přidat do oblíbených Oneplay"
@@ -55,9 +58,6 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
 1.1.0 (20.03.2025)
 - nastavení typu obsahu
 - stahování a kešovaní detailních dat pořadů
-
-1.0.2 (17.03.2025)
-- přidání zobrazení nového typu kategorie + oprava chyby u neznámého typu položky
     </news>
     <assets>
         <icon>icon.png</icon>

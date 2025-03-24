@@ -49,7 +49,7 @@ def play_live(id, mode):
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
     if 'err' in data or 'media' not in data:
         xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)
-    if 'liveControl' in ['playerControl'] and 'mosaic' in data['playerControl']['liveControl']:
+    if 'liveControl' in data['playerControl'] and 'mosaic' in data['playerControl']['liveControl']:
         md_titles = []
         md_ids = []
         for item in data['playerControl']['liveControl']['mosaic']['items']:
@@ -79,7 +79,7 @@ def play_archive(id):
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
     if 'err' in data or 'media' not in data:
         xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)
-    if 'liveControl' in ['playerControl'] and 'mosaic' in data['playerControl']['liveControl']:
+    if 'liveControl' in data['playerControl'] and 'mosaic' in data['playerControl']['liveControl']:
         md_titles = []
         md_ids = []
         for item in data['playerControl']['liveControl']['mosaic']['items']:
