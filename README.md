@@ -6,6 +6,9 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <a href="https://www.xbmc-kodi.cz/prispevek-oneplay">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 </p>
 <p>
+1.1.5 (25.03.2025)<br>
+- vypnuté logování odpovědí u EPG API<br><br>
+
 1.1.4 (24.03.2025)<br>
 - oprava multidimenze<br>
 
@@ -22,8 +25,4 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 - oprava přehrávání pořadů z TV v kategoriích<br>
 - ošetření výběru sezón ze správné záložky<br>
 - přehrávání kanálů jen s HLS, kde není dostupný startover<br><br>
-
-1.1.0 (20.03.2025)<br>
-- nastavení typu obsahu<br>
-- stahování a kešovaní detailních dat pořadů<br><br>
 </p>

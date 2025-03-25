@@ -55,8 +55,11 @@ class API:
                 ws.close()
                 return { 'err' : 'Chyba při volání API' }  
             response = ws.recv()
-            if addon.getSetting('log_response') == 'true' and nolog == False:
-                xbmc.log('Oneplay > ' + str(response))
+            if addon.getSetting('log_response') == 'true':
+                if nolog == False or len(str(response)) < 2000:
+                    xbmc.log('Oneplay > ' + str(response))
+                else:
+                    xbmc.log('Oneplay > odpověď obdržena (' + str(len(str(response))) + ')')
             if response and len(response) > 0:
                 data = json.loads(response)
                 if 'response' not in data or 'result' not in data['response'] or 'status' not in data['response']['result'] or data['response']['result']['status'] != 'Ok' or data['response']['context']['requestId'] != requestId:

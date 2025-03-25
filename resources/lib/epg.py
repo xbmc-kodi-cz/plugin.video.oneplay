@@ -67,7 +67,7 @@ def get_live_epg():
     from_ts = int(time.mktime(datetime(today_date.year, today_date.month, today_date.day).timetuple()))
     to_ts = from_ts + 60*60*24 - 1
     post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(from_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(to_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
-    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session)
+    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session, nolog = True)
     if 'err' not in data:
         for channel in data['schedule']:
             for item in channel['items']:
@@ -84,7 +84,7 @@ def get_channel_epg(channel_id, from_ts, to_ts):
     api = API()
     epg = {}
     post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(from_ts-3600).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(to_ts-3600).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
-    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session)
+    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session, nolog = True)
     if 'err' not in data:
         for channel in data['schedule']:
             if channel['channelId'] == channel_id:
@@ -104,7 +104,7 @@ def get_day_epg(from_ts, to_ts):
     api = API()
     epg = {}
     post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(from_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(to_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
-    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session)
+    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session, nolog = True)
     if 'err' not in data:
         for channel in data['schedule']:
             for item in channel['items']:
