@@ -7,7 +7,7 @@ import json
 import time 
 
 from resources.lib.api import API
-from resources.lib.profiles import get_profile_id, get_account_id
+from resources.lib.profiles import get_profile_id, get_account_id, reset_profiles
 
 class Session:
     def __init__(self):
@@ -66,7 +66,12 @@ class Session:
         post = {"payload":{"profileId":profileId}}
         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/user.profile.select', data = post, session = self)
         if 'err' in data or 'bearerToken' not in data:
-            xbmcgui.Dialog().notification('Oneplay','Problém při přihlášení', xbmcgui.NOTIFICATION_ERROR, 5000)
+            reset_profiles()
+            profileId = get_profile_id()
+            post = {"payload":{"profileId":profileId}}
+            data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/user.profile.select', data = post, session = self)            
+            if 'err' in data or 'bearerToken' not in data:
+                xbmcgui.Dialog().notification('Oneplay','Problém při přihlášení', xbmcgui.NOTIFICATION_ERROR, 5000)
             sys.exit()
         self.token = data['bearerToken']
 
