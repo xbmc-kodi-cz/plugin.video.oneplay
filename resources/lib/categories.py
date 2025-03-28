@@ -50,14 +50,16 @@ def list_category(id, carouselId, criteria, label):
                         list_item = xbmcgui.ListItem(label = item['title'])
                         url = get_url(action='list_filters', id = id, filters = item['id'], label = label)  
                         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-            if block['schema'] == 'CarouselBlock':
-                if carouselId is None and criteria is None:
+            if block['schema'] in ['CarouselBlock', 'TabBlock']:
+                if carouselId is None and criteria is None and block['schema'] != 'TabBlock':
                     list_item = xbmcgui.ListItem(label = block['header']['title'])
                     url = get_url(action='list_category', id = id, carouselId = block['id'], criteria = criteria, label = label + ' / ' + block['header']['title'])  
                     menus = [('Přidat do oblíbených Oneplay', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourite&type=category&id=' + id + '~' + block['id'] + '~' + str(criteria) + '&image=None&title=' + (label + ' / ' + block['header']['title']).replace('Kategorie / ','') + ')')]
                     list_item.addContextMenuItems(menus)       
                     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-                elif block['id'] == carouselId or criteria is not None:
+                elif block['id'] == carouselId or criteria is not None or block['schema'] == 'TabBlock':
+                    if block['schema'] == 'TabBlock':
+                        block =  block['layout']['blocks'][0]
                     for carousel in block['carousels']:
                         for item in carousel['tiles']:
                             if item['action']['params']['schema'] == 'PageContentDisplayApiAction':
@@ -75,7 +77,10 @@ def list_category(id, carouselId, criteria, label):
                                 elif item['action']['params']['contentType']  in ['movie','epgitem']:
                                     list_item.setContentLookup(False)          
                                     list_item.setProperty('IsPlayable', 'true')
-                                    url = get_url(action = 'play_archive', id = item['action']['params']['payload']['contentId'])
+                                    if 'startMode' in item['action']['params']['payload']:
+                                        url = get_url(action = 'play_live', id = item['action']['params']['payload']['contentId'].replace('channel.'), mode = 'start')
+                                    else:
+                                        url = get_url(action = 'play_archive', id = item['action']['params']['payload']['contentId'])
                                     menus = [('Přidat do oblíbených Oneplay', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourite&type=item&id=' + item['action']['params']['payload']['contentId'] + '&image=' + image + '&title=' + item['title'] + ')')]
                                     list_item.addContextMenuItems(menus)       
                                     xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
@@ -94,13 +99,16 @@ def list_category(id, carouselId, criteria, label):
                                 list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                 list_item.setContentLookup(False)          
                                 list_item.setProperty('IsPlayable', 'true')
-                                url = get_url(action = 'play_archive', id = item['action']['params']['payload']['criteria']['contentId'])
+                                if 'startMode' in item['action']['params']['payload']:
+                                    url = get_url(action = 'play_live', id = item['action']['params']['payload']['criteria']['contentId'].replace('channel.',''), mode = 'start')
+                                else:
+                                    url = get_url(action = 'play_archive', id = item['action']['params']['payload']['criteria']['contentId'])
                                 menus = [('Přidat do oblíbených Oneplay', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourite&type=item&id=' + item['action']['params']['payload']['criteria']['contentId'] + '&image=' + image + '&title=' + item['title'] + ')')]
                                 list_item.addContextMenuItems(menus)       
                                 xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
                             else:
                                 xbmcgui.Dialog().notification('Oneplay','Neznámá položka: ' + item['action']['params']['schema'], xbmcgui.NOTIFICATION_INFO, 2000)                                    
-                        if carousel['paging']['next'] == True:
+                        if 'pagein' in carousel and carousel['paging']['next'] == True:
                             list_item = xbmcgui.ListItem(label='Následující strana')
                             url = get_url(action='list_carousel', id = carousel['id'], criteria = encode(criteria), page = 2, label = label)  
                             list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'next_arrow.png'), 'icon' : os.path.join(icons_dir , 'next_arrow.png') })

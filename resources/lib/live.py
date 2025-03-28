@@ -16,7 +16,8 @@ if len(sys.argv) > 1:
 def list_live(label):
     addon = xbmcaddon.Addon()
     xbmcplugin.setPluginCategory(_handle, label)
-    xbmcplugin.setContent(_handle, 'tvshows')
+    if addon.getSetting('default_tv_view') == 'false':
+        xbmcplugin.setContent(_handle, 'tvshows')
     channels = Channels()
     channels_list = channels.get_channels_list('channel_number')
     epg = get_live_epg()

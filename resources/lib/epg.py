@@ -11,7 +11,6 @@ except ImportError:
 
 import sqlite3
 import json
-import time
 
 from resources.lib.session import Session
 from resources.lib.channels import Channels
@@ -60,39 +59,12 @@ def remove_db():
         except IOError:
             xbmcgui.Dialog().notification('Oneplay', 'Chyba při mazání keše!', xbmcgui.NOTIFICATION_ERROR, 5000)  
 
-def load_epg_data(timestamp):
-    from resources.lib.settings import Settings
-    settings = Settings()
-    data = settings.load_json_data({'filename' : 'epg_data.txt', 'description' : 'EPG'})
-    if data is not None:
-        data = json.loads(data)
-        if 'timestamp' in data and 'epg' in data:
-            if int(data['timestamp']) != timestamp:
-                return []
-            else:
-                return data['epg']
-        else:
-            return []
-    else:
-        return []
-
-def save_epg_data(epg, timestamp):
-    from resources.lib.settings import Settings
-    settings = Settings()
-    data = json.dumps({'epg' : epg, 'timestamp' : timestamp})        
-    settings.save_json_data({'filename' : 'epg_data.txt', 'description' : 'EPG'}, data)
-
 def get_live_epg():
     session = Session()
     api = API()
-    today_date = datetime.today() 
-    from_ts = int(time.mktime(datetime(today_date.year, today_date.month, today_date.day).timetuple()))
-    to_ts = from_ts + 60*60*24 - 1
-    # epg_data = load_epg_data(from_ts)
     epg_data = []
     epg = {}
     if len(epg_data) == 0:
-        # post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(from_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(to_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
         post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(datetime.now().timestamp()-3600).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(datetime.now().timestamp()).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session, nolog = True)
         if 'err' not in data:
@@ -102,7 +74,6 @@ def get_live_epg():
                     endts = int(datetime.fromisoformat(item['endAt']).timestamp())
                     epg_item = {'id' : item['id'], 'title' : item['title'], 'channel_id' : channel['channelId'], 'description' : item['description'], 'startts' : startts, 'endts' : endts, 'cover' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320'), 'poster' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')}
                     epg_data.append(epg_item)
-            # save_epg_data(epg_data, from_ts)
     for item in epg_data:
         currentts = datetime.now().timestamp()
         if item['startts'] < currentts and item['endts'] > currentts:

@@ -65,7 +65,10 @@ class API:
                 if 'response' not in data or 'result' not in data['response'] or 'status' not in data['response']['result'] or data['response']['result']['status'] != 'Ok' or data['response']['context']['requestId'] != requestId:
                     xbmc.log('Oneplay > Chyba při volání '+ str(url))
                     ws.close()
-                    return { 'err' : 'Chyba při volání API' }  
+                    if 'message' in data['response']['result']:
+                        return { 'err' : data['response']['result']['message']}
+                    else:
+                        return { 'err' : 'Chyba při volání API' }  
                 ws.close()
                 if 'data' in data['response']:
                     return data['response']['data']

@@ -48,22 +48,29 @@ def play_live(id, mode):
         post = {"payload":{"criteria":{"schema":"ContentCriteria","contentId":"channel." + id},"startMode":mode},"playbackCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","subtitle":{"formats":["vtt"],"locations":["InstreamTrackLocation","ExternalTrackLocation"]},"liveSpecificCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","multipleAudio":False}}}
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
     if 'err' in data or 'media' not in data:
-        xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)
-    if 'liveControl' in data['playerControl'] and 'mosaic' in data['playerControl']['liveControl']:
-        md_titles = []
-        md_ids = []
-        for item in data['playerControl']['liveControl']['mosaic']['items']:
-            md_titles.append(item['title'])
-            md_ids.append(item['play']['params']['payload']['criteria']['contentId'])            
-        response = xbmcgui.Dialog().select(heading = 'Multidimenze - výběr streamu', list = md_titles, preselect = 0)
-        if response < 0:
-            return
-        id = md_ids[response]
-        post = {"payload":{"criteria":{"schema":"MDPlaybackCriteria","contentId":id,"position":0},"startMode":mode},"playbackCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","subtitle":{"formats":["vtt"],"locations":["InstreamTrackLocation","ExternalTrackLocation"]},"liveSpecificCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","multipleAudio":False}}}
-        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
-        if 'err' in data or 'media' not in data:
-            xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)
-    play_stream(data, mode)
+        if len(data['err']) > 0:
+            xbmcgui.Dialog().notification('Oneplay', data['err'], xbmcgui.NOTIFICATION_ERROR, 5000)
+        else:
+            xbmcgui.Dialog().notification('Oneplay', 'Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)                    
+    else:
+        if 'liveControl' in data['playerControl'] and 'mosaic' in data['playerControl']['liveControl']:
+            md_titles = []
+            md_ids = []
+            for item in data['playerControl']['liveControl']['mosaic']['items']:
+                md_titles.append(item['title'])
+                md_ids.append(item['play']['params']['payload']['criteria']['contentId'])            
+            response = xbmcgui.Dialog().select(heading = 'Multidimenze - výběr streamu', list = md_titles, preselect = 0)
+            if response < 0:
+                return
+            id = md_ids[response]
+            post = {"payload":{"criteria":{"schema":"MDPlaybackCriteria","contentId":id,"position":0},"startMode":mode},"playbackCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","subtitle":{"formats":["vtt"],"locations":["InstreamTrackLocation","ExternalTrackLocation"]},"liveSpecificCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","multipleAudio":False}}}
+            data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
+            if 'err' in data or 'media' not in data:
+                if len(data['err']) > 0:
+                    xbmcgui.Dialog().notification('Oneplay', data['err'], xbmcgui.NOTIFICATION_ERROR, 5000)
+                else:
+                    xbmcgui.Dialog().notification('Oneplay', 'Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)                    
+        play_stream(data, mode)
 
 def play_archive(id):
     session = Session()
@@ -78,22 +85,29 @@ def play_archive(id):
     post = {"payload":{"criteria":{"schema":"ContentCriteria","contentId":id}},"playbackCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","subtitle":{"formats":["vtt"],"locations":["InstreamTrackLocation","ExternalTrackLocation"]},"liveSpecificCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","multipleAudio":False}}}
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
     if 'err' in data or 'media' not in data:
-        xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)
-    if 'liveControl' in data['playerControl'] and 'mosaic' in data['playerControl']['liveControl']:
-        md_titles = []
-        md_ids = []
-        for item in data['playerControl']['liveControl']['mosaic']['items']:
-            md_titles.append(item['title'])
-            md_ids.append(item['play']['params']['payload']['criteria']['contentId'])            
-        response = xbmcgui.Dialog().select(heading = 'Multidimenze - výběr streamu', list = md_titles, preselect = 0)
-        if response < 0:
-            return
-        id = md_ids[response]
-        post = {"payload":{"criteria":{"schema":"MDPlaybackCriteria","contentId":id,"position":0}},"playbackCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","subtitle":{"formats":["vtt"],"locations":["InstreamTrackLocation","ExternalTrackLocation"]},"liveSpecificCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","multipleAudio":False}}}
-        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
-        if 'err' in data or 'media' not in data:
-            xbmcgui.Dialog().notification('Oneplay','Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)
-    play_stream(data, 'archive')
+        if len(data['err']) > 0:
+            xbmcgui.Dialog().notification('Oneplay', data['err'], xbmcgui.NOTIFICATION_ERROR, 5000)
+        else:
+            xbmcgui.Dialog().notification('Oneplay', 'Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)                    
+    else:
+        if 'liveControl' in data['playerControl'] and 'mosaic' in data['playerControl']['liveControl']:
+            md_titles = []
+            md_ids = []
+            for item in data['playerControl']['liveControl']['mosaic']['items']:
+                md_titles.append(item['title'])
+                md_ids.append(item['play']['params']['payload']['criteria']['contentId'])            
+            response = xbmcgui.Dialog().select(heading = 'Multidimenze - výběr streamu', list = md_titles, preselect = 0)
+            if response < 0:
+                return
+            id = md_ids[response]
+            post = {"payload":{"criteria":{"schema":"MDPlaybackCriteria","contentId":id,"position":0}},"playbackCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","subtitle":{"formats":["vtt"],"locations":["InstreamTrackLocation","ExternalTrackLocation"]},"liveSpecificCapabilities":{"protocols":["dash","hls"],"drm":["widevine","fairplay"],"altTransfer":"Unicast","multipleAudio":False}}}
+            data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/content.play', data = post, session = session)
+            if 'err' in data or 'media' not in data:
+                if len(data['err']) > 0:
+                    xbmcgui.Dialog().notification('Oneplay', data['err'], xbmcgui.NOTIFICATION_ERROR, 5000)
+                else:
+                    xbmcgui.Dialog().notification('Oneplay', 'Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 5000)                    
+        play_stream(data, 'archive')
 
 def play_stream(data, mode):
     url_dash = None

@@ -60,7 +60,8 @@ def list_program(id, day_min, label):
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
     label = label.replace('Archiv /','')
     xbmcplugin.setPluginCategory(_handle, label)
-    xbmcplugin.setContent(_handle, 'tvshows')
+    if addon.getSetting('default_tv_view') == 'false':
+        xbmcplugin.setContent(_handle, 'tvshows')
     today_date = datetime.today() 
     today_start_ts = int(time.mktime(datetime(today_date.year, today_date.month, today_date.day) .timetuple()))
     today_end_ts = today_start_ts + 60*60*24 -1

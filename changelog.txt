@@ -1,3 +1,9 @@
+1.1.7 (28.03.2025)
+- doplnění některých chybějících položek v kategoriích
+- spouštění živého vysílání z kategoriích
+- zobrazení konkrétní vrácené chyby při pokusu o přehrání streamu místo obecné chyby
+- u TV (Živé vysílání i Archiv) se dá v nastavení zapnout obecné zobrazení seznamů
+
 1.1.6 (26.03.2025)
 - optimalizace stahování EPG dat
 - při chybě při výběru profilu se provede automaticky znovunačtení profilů
@@ -13,7 +19,3 @@
 - ošetření chyb v datech pořadů
 - přidané oblíbených položek v kategoriích přes kontextové menu "Přidat do oblíbených Oneplay"
 - přidání položky InputStream Helper pro instalaci Widevine knihovny do nastavení
-
-1.1.2 (22.03.2025)
-- vynechání catchupu a archivu, kde je dostupné jen živé vysílání a úprava playlistu
-- zrušení stránkování sezón (načtou se všechny)
