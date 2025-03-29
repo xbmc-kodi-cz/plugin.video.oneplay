@@ -1,5 +1,6 @@
 1.2.1 (29.03.2025)
-- přídání do Oblíbených je možné i z výsledků vyhledávání
+- přidání do Oblíbených je možné i z výsledků vyhledávání
+- ošetření opačného řazení sérií u nejnovějších epizod
 - úprava metadat
 
 1.2.0 (29.03.2025)
