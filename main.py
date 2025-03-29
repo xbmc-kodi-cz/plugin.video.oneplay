@@ -24,7 +24,7 @@ from resources.lib.categories import list_categories, list_category, list_filter
 from resources.lib.search import list_search, delete_search, program_search
 from resources.lib.profiles import list_profiles, set_active_profile, reset_profiles
 from resources.lib.profiles import list_accounts, set_active_account, reset_accounts
-from resources.lib.favourites import list_favourites, add_favourite, remove_favourite
+from resources.lib.favourites import list_favourites, list_favourites_new, add_favourite, remove_favourite, add_favourites_episodes_bl
 from resources.lib.settings import list_settings
 from resources.lib.session import Session
 
@@ -54,7 +54,12 @@ def main_menu():
     url = get_url(action='list_favourites', label = 'Oblíbené')  
     list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'favourites.png'), 'icon' : os.path.join(icons_dir , 'favourites.png') })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-    
+
+    list_item = xbmcgui.ListItem(label = 'Nejnovější epizody Oblíbených')
+    url = get_url(action='list_favourites_new', label = 'Oblíbené')  
+    list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'favourites.png'), 'icon' : os.path.join(icons_dir , 'favourites.png') })
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
     list_item = xbmcgui.ListItem(label='Nahrávky')
     url = get_url(action='list_recordings', label = 'Nahrávky')  
     list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'recordings.png'), 'icon' : os.path.join(icons_dir , 'recordings.png') })
@@ -195,11 +200,15 @@ def router(paramstring):
 
         elif params['action'] == 'list_favourites':
             list_favourites(params['label'])
+        elif params['action'] == 'list_favourites_new':
+            list_favourites_new(params['label'])
         elif params['action'] == 'add_favourite':
             add_favourite(params['type'], params['id'], params['image'], params['title'])
         elif params['action'] == 'remove_favourite':
             remove_favourite(params['type'], params['id'])
-
+        elif params['action'] == 'add_favourites_episodes_bl':
+            add_favourites_episodes_bl(params['id'])
+            
         elif params['action'] == 'generate_playlist':
             if 'output_file' in params:
                 generate_playlist(params['output_file'])
@@ -224,7 +233,6 @@ def router(paramstring):
 
         elif params['action'] == 'remove_cache':
             remove_db()            
-
         else:
             raise ValueError('Neznámý parametr: {0}!'.format(paramstring))
     else:

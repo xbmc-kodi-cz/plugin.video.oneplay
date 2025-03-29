@@ -6,6 +6,9 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <a href="https://www.xbmc-kodi.cz/prispevek-oneplay">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 </p>
 <p>
+1.2.0 (29.03.2025)<br>
+- zobrazení nejnovějších epizod seriálů v Oblíbených<br><br>
+
 1.1.7 (28.03.2025)<br>
 - doplnění některých chybějících položek v kategoriích<br>
 - spouštění živého vysílání z kategoriích<br>
@@ -22,9 +25,4 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 
 1.1.4 (24.03.2025)<br>
 - oprava multidimenze<br>
-
-1.1.3 (23.03.2025)<br>
-- ošetření chyb v datech pořadů<br>
-- přidané oblíbených položek v kategoriích přes kontextové menu "Přidat do oblíbených Oneplay"<br>
-- přidání položky InputStream Helper pro instalaci Widevine knihovny do nastavení<br><br>
 </p>
