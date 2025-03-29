@@ -66,15 +66,19 @@ def program_search(query, label):
                                     item_detail = get_item_detail(item['action']['params']['payload']['contentId'])
                                     list_item = xbmcgui.ListItem(label = item['title'])
                                     image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                    list_item.setArt({'thumb': image, 'icon': image})    
+                                    list_item.setArt({'poster': image})    
                                     list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                     list_item = epg_listitem(list_item, item_detail, None)
                                     if item['action']['params']['contentType'] == 'show':
+                                        menus = [('Přidat do oblíbených Oneplay', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourite&type=show&id=' + item['action']['params']['payload']['contentId'] + '&image=' + image + '&title=' + item['title'] + ')')]
+                                        list_item.addContextMenuItems(menus)       
                                         url = get_url(action = 'list_show', id = item['action']['params']['payload']['contentId'], label = label + ' / ' + item['title'] )
                                         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
                                     elif item['action']['params']['contentType'] == 'movie':
                                         list_item.setContentLookup(False)          
                                         list_item.setProperty('IsPlayable', 'true')
+                                        menus = [('Přidat do oblíbených Oneplay', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourite&type=item&id=' + item['action']['params']['payload']['contentId'] + '&image=' + image + '&title=' + item['title'] + ')')]
+                                        list_item.addContextMenuItems(menus)       
                                         url = get_url(action = 'play_archive', id = item['action']['params']['payload']['contentId'])
                                         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
                                     else:

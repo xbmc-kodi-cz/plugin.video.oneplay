@@ -1,3 +1,7 @@
+1.2.1 (29.03.2025)
+- přídání do Oblíbených je možné i z výsledků vyhledávání
+- úprava metadat
+
 1.2.0 (29.03.2025)
 - zobrazení nejnovějších epizod seriálů v Oblíbených
 
@@ -14,6 +18,3 @@
 
 1.1.5 (25.03.2025)
 - vypnuté logování odpovědí u EPG API
-
-1.1.4 (24.03.2025)
-- oprava multidimenze

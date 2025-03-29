@@ -8,7 +8,7 @@ import xbmcaddon
 from resources.lib.session import Session
 from resources.lib.api import API
 from resources.lib.epg import get_item_detail, epg_listitem
-from resources.lib.utils import get_url, encode, plugin_id
+from resources.lib.utils import get_url, encode, plugin_id, get_kodi_version
 
 _handle = int(sys.argv[1])
 
@@ -66,7 +66,7 @@ def list_category(id, carouselId, criteria, label):
                                 item_detail = get_item_detail(item['action']['params']['payload']['contentId'])
                                 list_item = xbmcgui.ListItem(label = item['title'])
                                 image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                list_item.setArt({'thumb': image, 'icon': image})    
+                                list_item.setArt({'poster': image})    
                                 list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                 list_item = epg_listitem(list_item, item_detail, None)
                                 if item['action']['params']['contentType'] == 'show':
@@ -89,13 +89,13 @@ def list_category(id, carouselId, criteria, label):
                             elif item['action']['params']['schema'] == 'PageCategoryDisplayApiAction':
                                 list_item = xbmcgui.ListItem(label = item['title'])
                                 image = item['image'].replace('{WIDTH}', '540').replace('{HEIGHT}', '320')
-                                list_item.setArt({'thumb': image, 'icon': image})    
+                                list_item.setArt({'poster': image})    
                                 url = get_url(action='list_category', id = item['action']['params']['payload']['categoryId'], criteria = criteria, label = label + ' / ' + item['title'])  
                                 xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
                             elif item['action']['params']['schema'] == 'ContentPlayApiAction':
                                 list_item = xbmcgui.ListItem(label = item['title'])
                                 image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                list_item.setArt({'thumb': image, 'icon': image})    
+                                list_item.setArt({'poster': image})    
                                 list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                 list_item.setContentLookup(False)          
                                 list_item.setProperty('IsPlayable', 'true')
@@ -122,17 +122,34 @@ def list_season(carouselId, id, label):
     api = API()
     get_page = True
     page = 1
+    kodi_version = get_kodi_version()
     while get_page == True:
         post = {"payload":{"carouselId":carouselId,"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":id,"sortOption":"DESC"}}}
         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/carousel.display', data = post, session = session)
         for item in data['carousel']['tiles']:
+            if 'tracking' in item and 'show' in item['tracking']:
+                print(item['tracking']['show'])
+
             if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
                 if 'subTitle' in item:
                     item['title'] = item['title'] + ' ' + item['subTitle']
                 list_item = xbmcgui.ListItem(label = item['title'])
                 image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
-                list_item.setArt({'thumb': image, 'icon': image})    
-                list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
+                list_item.setArt({'poster': image})    
+                if kodi_version >= 20:
+                    infotag = list_item.getVideoInfoTag()
+                    infotag.setMediaType('episode')
+                else:
+                    list_item.setInfo('video', {'mediatype' : 'episode'})
+                if kodi_version >= 20:
+                    infotag.setTitle(item['title'])
+                else:
+                    list_item.setInfo('video', {'title' : item['title']})
+                if 'tracking' in item and 'show' in item['tracking'] and 'season' in item['tracking']:
+                    if kodi_version >= 20:
+                        infotag.setTvShowTitle(item['tracking']['show']['title'] + ' / ' + item['tracking']['season'])
+                    else:
+                        list_item.setInfo('video', {'tvshowtitle' : item['tracking']['show']['title'] + ' / ' + item['tracking']['season']})                
                 list_item.setContentLookup(False)          
                 list_item.setProperty('IsPlayable', 'true')
                 url = get_url(action = 'play_archive', id = item['action']['params']['payload']['criteria']['contentId'])
@@ -159,7 +176,6 @@ def list_show(id, label):
                     else:
                         post = {"payload":{"tabId":tab['id']}}
                         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/tab.display', data = post, session = session)
-
     for block in data['layout']['blocks']:
         if block['schema'] == 'CarouselBlock' and block['template'] in ['list','grid']:
             for carousel in block['carousels']:
@@ -181,7 +197,7 @@ def list_show(id, label):
                                 item['title'] = item['title'] + ' ' + item['subTitle']
                             list_item = xbmcgui.ListItem(label = item['title'])
                             image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
-                            list_item.setArt({'thumb': image, 'icon': image})    
+                            list_item.setArt({'poster': image})    
                             list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                             list_item.setContentLookup(False)          
                             list_item.setProperty('IsPlayable', 'true')
@@ -209,7 +225,7 @@ def list_carousel(id, criteria, page, label):
             item_detail = get_item_detail(item['action']['params']['payload']['contentId'])
             list_item = xbmcgui.ListItem(label = item['title'])
             image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-            list_item.setArt({'thumb': image, 'icon': image})    
+            list_item.setArt({'poster': image})    
             list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
             list_item = epg_listitem(list_item, item_detail, None)        
             if item['action']['params']['contentType'] == 'show':

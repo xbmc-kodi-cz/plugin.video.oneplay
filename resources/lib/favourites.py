@@ -17,7 +17,7 @@ import json
 from resources.lib.api import API
 from resources.lib.session import Session
 from resources.lib.epg import get_item_detail, epg_listitem
-from resources.lib.utils import get_url, plugin_id
+from resources.lib.utils import get_url, plugin_id, get_kodi_version
 
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
@@ -87,14 +87,14 @@ def list_favourites(label):
                     list_item.addContextMenuItems(menus)       
                     if type == 'show':
                         item_detail = get_item_detail(id)
-                        list_item.setArt({'thumb': item['image'], 'icon': item['image']})    
+                        list_item.setArt({'poster': item['image']})    
                         list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                         list_item = epg_listitem(list_item, item_detail, None)
                         url = get_url(action = 'list_show', id = id, label = label + ' / ' + item['title'] )
                         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
                     elif type == 'item':
                         item_detail = get_item_detail(id)
-                        list_item.setArt({'thumb': item['image'], 'icon': item['image']})    
+                        list_item.setArt({'poster': item['image']})    
                         list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                         list_item = epg_listitem(list_item, item_detail, None)
                         list_item.setContentLookup(False)          
@@ -119,13 +119,14 @@ def list_favourites(label):
 def list_favourites_new(label):
     addon = xbmcaddon.Addon()
     xbmcplugin.setPluginCategory(_handle, label)
-    xbmcplugin.setContent(_handle, 'movies')
+    xbmcplugin.setContent(_handle, 'episodes')
     session = Session()
     limit = int(addon.getSetting('favourites_new_count'))
     api = API()
     types = ['show', 'season']
     seasons = []
     favourites = get_favourites()
+    blacklist = get_favourites_episodes_bl()
     for type in types:
             if type in favourites.keys():
                 for id in favourites[type]:
@@ -149,8 +150,12 @@ def list_favourites_new(label):
                                     if 'criteria' in carousel:
                                         for criteria in carousel['criteria']:
                                             if criteria['schema'] == 'CarouselGenericFilter' and criteria['template'] == 'showSeason':
+                                                first = True
                                                 for season in criteria['items']:   
                                                     season_item = {'title' : item['title'] + ' / ' + season['label'], 'id' : season['criteria'], 'carouselId' : carousel['id']}
+                                                    if first == True and '.' in season['label'] and season['label'].split('.')[0] != '1':
+                                                        break
+                                                    first = False
                         if season_item is not None and season_item not in seasons:
                             seasons.append(season_item)
                     if type == 'season':
@@ -161,7 +166,7 @@ def list_favourites_new(label):
                         if season_item not in seasons:
                             seasons.append(season_item)
     episodes = {}
-    blacklist = get_favourites_episodes_bl()
+    shows_data = {}
     for season in seasons:
         get_page = True
         page = 1
@@ -174,12 +179,18 @@ def list_favourites_new(label):
                     cnt += 1
                     if 'subTitle' in item:
                         item['title'] = item['title'] + ' ' + item['subTitle']
+                    if 'tracking' in item and 'show' in item['tracking'] and item['tracking']['show']['id'] not in shows_data:
+                        post = {"payload":{"contentId":item['tracking']['show']['id']}}
+                        show = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
+                        for show_item in show['layout']['blocks']:
+                            if show_item['schema'] == 'ContentHeaderBlock':
+                                shows_data.update({item['tracking']['show']['id'] : {'description' : show_item['description']}})
                     title = item['title']
                     image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
                     id = item['action']['params']['payload']['criteria']['contentId']
                     episodeId = int(id.replace('episode.',''))
                     if id not in episodes:
-                        episodes.update({episodeId : {'id' : id, 'season_title' : season['title'], 'title' : title, 'image' : image}})
+                        episodes.update({episodeId : {'id' : id, 'show' : item['tracking']['show']['id'], 'season_title' : season['title'], 'title' : title, 'image' : image}})
                     if cnt >= limit:
                         get_page = False
                         break
@@ -187,14 +198,32 @@ def list_favourites_new(label):
                 page = page + 1
             else:
                 get_page = False
+    kodi_version = get_kodi_version()
     for episodeId in sorted(episodes.keys(), reverse = True):
         item = episodes[episodeId]
         if item['id'] not in blacklist:
             list_item = xbmcgui.ListItem(label = item['title'] + '\n' + '[COLOR=gray]' + item['season_title'] + '[/COLOR]')
-            list_item.setArt({'thumb': item['image'], 'icon': item['image']})    
-            list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
+            list_item.setArt({'poster': item['image']})    
+            if kodi_version >= 20:
+                infotag = list_item.getVideoInfoTag()
+                infotag.setMediaType('episode')
+            else:
+                list_item.setInfo('video', {'mediatype' : 'episode'})
+            if kodi_version >= 20:
+                infotag.setTitle(item['title'])
+            else:
+                list_item.setInfo('video', {'title' : item['title']})
+            if kodi_version >= 20:
+                infotag.setTvShowTitle(item['season_title'])
+            else:
+                list_item.setInfo('video', {'tvshowtitle' : item['season_title']})                
             list_item.setContentLookup(False)          
             list_item.setProperty('IsPlayable', 'true')
+            if item['show'] in shows_data:
+                if kodi_version >= 20:
+                    infotag.setPlot(shows_data[item['show']]['description'])
+                else:
+                    list_item.setInfo('video', {'plot': shows_data[item['show']]['description']})
             menus = [('Skrýt epizodu', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourites_episodes_bl&id=' + item['id'] + ')')]
             list_item.addContextMenuItems(menus)       
             url = get_url(action = 'play_archive', id = item['id'])

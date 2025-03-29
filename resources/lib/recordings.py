@@ -56,7 +56,7 @@ def list_recordings(label):
                                         else:
                                             list_item = xbmcgui.ListItem(label = '[COLOR=gray]' + title + '[/COLOR]')
                                         image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                        list_item.setArt({'thumb': image, 'icon': image})    
+                                        list_item.setArt({'poster': image})    
                                         list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                         menus = [('Smazat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=delete_recording&id=' + item['action']['params']['payload']['contentId'] + ')')]
                                         list_item.addContextMenuItems(menus)       
@@ -72,7 +72,7 @@ def list_recordings(label):
                                         else:
                                             list_item = xbmcgui.ListItem(label = '[COLOR=gray]' + title + '[/COLOR]')
                                         image = item['image'].replace('{WIDTH}', '320').replace('{HEIGHT}', '480')
-                                        list_item.setArt({'thumb': image, 'icon': image})    
+                                        list_item.setArt({'poster': image})    
                                         list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
                                         menus = [('Smazat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=delete_recording&id=' + item['action']['params']['payload']['contentId'] + ')')]
                                         list_item.addContextMenuItems(menus)       
