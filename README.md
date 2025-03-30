@@ -8,7 +8,7 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <p>
 1.2.2 (30.03.2025)<br>
 - úprava stahování EPG pro živé vysílání<br>
-- odstranění redundatního a nepoužitého kódu<br><br>
+- odstranění redundantního a nepoužitého kódu<br><br>
 
 1.2.1 (29.03.2025)<br>
 - přidání do Oblíbených je možné i z výsledků vyhledávání<br>

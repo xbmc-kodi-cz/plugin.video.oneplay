@@ -1,6 +1,6 @@
 1.2.2 (30.03.2025)
 - úprava stahování EPG pro živé vysílání
-- odstranění redundatního a nepoužitého kódu
+- odstranění redundantního a nepoužitého kódu
 
 1.2.1 (29.03.2025)
 - přidání do Oblíbených je možné i z výsledků vyhledávání
