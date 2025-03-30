@@ -14,8 +14,7 @@ except ImportError:
 import codecs
 import json
 
-from resources.lib.api import API
-from resources.lib.session import Session
+from resources.lib.categories import get_episodes, get_shows
 from resources.lib.epg import get_item_detail, epg_listitem
 from resources.lib.utils import get_url, plugin_id, get_kodi_version
 
@@ -120,9 +119,8 @@ def list_favourites_new(label):
     addon = xbmcaddon.Addon()
     xbmcplugin.setPluginCategory(_handle, label)
     xbmcplugin.setContent(_handle, 'episodes')
-    session = Session()
     limit = int(addon.getSetting('favourites_new_count'))
-    api = API()
+    kodi_version = get_kodi_version()
     types = ['show', 'season']
     seasons = []
     favourites = get_favourites()
@@ -132,32 +130,7 @@ def list_favourites_new(label):
                 for id in favourites[type]:
                     item = favourites[type][id]
                     if type == 'show':
-                        season_item = None
-                        post = {"payload":{"contentId":id}}
-                        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
-                        for block in data['layout']['blocks']:
-                            if block['schema'] == 'TabBlock' and block['template'] == 'tabs':
-                                for tab in block['tabs']:
-                                    if tab['label']['name'] == 'Celé díly':
-                                        if tab['isActive'] == True:
-                                            data = block
-                                        else:
-                                            post = {"payload":{"tabId":tab['id']}}
-                                            data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/tab.display', data = post, session = session)
-                        for block in data['layout']['blocks']:
-                            if block['schema'] == 'CarouselBlock' and block['template'] in ['list','grid']:
-                                for carousel in block['carousels']:
-                                    if 'criteria' in carousel:
-                                        for criteria in carousel['criteria']:
-                                            if criteria['schema'] == 'CarouselGenericFilter' and criteria['template'] == 'showSeason':
-                                                first = True
-                                                for season in criteria['items']:   
-                                                    season_item = {'title' : item['title'] + ' / ' + season['label'], 'id' : season['criteria'], 'carouselId' : carousel['id']}
-                                                    if first == True and '.' in season['label'] and season['label'].split('.')[0] != '1':
-                                                        break
-                                                    first = False
-                        if season_item is not None and season_item not in seasons:
-                            seasons.append(season_item)
+                        seasons += get_shows(id, True)['seasons']
                     if type == 'season':
                         split_id = id.split('~')
                         id = split_id[0]
@@ -166,39 +139,8 @@ def list_favourites_new(label):
                         if season_item not in seasons:
                             seasons.append(season_item)
     episodes = {}
-    shows_data = {}
     for season in seasons:
-        get_page = True
-        page = 1
-        cnt = 0
-        while get_page == True:
-            post = {"payload":{"carouselId":season['carouselId'],"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":season['id'],"sortOption":"DESC"}}}
-            data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/carousel.display', data = post, session = session)
-            for item in data['carousel']['tiles']:
-                if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
-                    cnt += 1
-                    if 'subTitle' in item:
-                        item['title'] = item['title'] + ' ' + item['subTitle']
-                    if 'tracking' in item and 'show' in item['tracking'] and item['tracking']['show']['id'] not in shows_data:
-                        post = {"payload":{"contentId":item['tracking']['show']['id']}}
-                        show = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
-                        for show_item in show['layout']['blocks']:
-                            if show_item['schema'] == 'ContentHeaderBlock':
-                                shows_data.update({item['tracking']['show']['id'] : {'description' : show_item['description']}})
-                    title = item['title']
-                    image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
-                    id = item['action']['params']['payload']['criteria']['contentId']
-                    episodeId = int(id.replace('episode.',''))
-                    if id not in episodes:
-                        episodes.update({episodeId : {'id' : id, 'show' : item['tracking']['show']['id'], 'season_title' : season['title'], 'title' : title, 'image' : image}})
-                    if cnt >= limit:
-                        get_page = False
-                        break
-            if data['carousel']['paging']['next'] == True:
-                page = page + 1
-            else:
-                get_page = False
-    kodi_version = get_kodi_version()
+        episodes.update(get_episodes(season['carouselId'], season['id'], limit))
     for episodeId in sorted(episodes.keys(), reverse = True):
         item = episodes[episodeId]
         if item['id'] not in blacklist:
@@ -219,11 +161,6 @@ def list_favourites_new(label):
                 list_item.setInfo('video', {'tvshowtitle' : item['season_title']})                
             list_item.setContentLookup(False)          
             list_item.setProperty('IsPlayable', 'true')
-            if item['show'] in shows_data:
-                if kodi_version >= 20:
-                    infotag.setPlot(shows_data[item['show']]['description'])
-                else:
-                    list_item.setInfo('video', {'plot': shows_data[item['show']]['description']})
             menus = [('Skrýt epizodu', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourites_episodes_bl&id=' + item['id'] + ')')]
             list_item.addContextMenuItems(menus)       
             url = get_url(action = 'play_archive', id = item['id'])

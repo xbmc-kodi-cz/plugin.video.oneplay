@@ -10,10 +10,7 @@ try:
 except ImportError:
     from xbmc import translatePath
 
-try:
-    from urllib import quote
-except ImportError:
-    from urllib.parse import quote
+from urllib.parse import quote
 
 import json
 import codecs

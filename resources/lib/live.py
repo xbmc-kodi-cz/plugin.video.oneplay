@@ -8,7 +8,7 @@ from datetime import datetime
 
 from resources.lib.channels import Channels 
 from resources.lib.epg import get_live_epg, epg_listitem
-from resources.lib.utils import get_url, get_color, plugin_id, encode
+from resources.lib.utils import get_url, get_color, plugin_id
 
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
@@ -43,7 +43,7 @@ def list_live(label):
             list_item.setInfo('video', {'mediatype':'movie', 'title': channels_list[num]['name']}) 
         list_item.setContentLookup(False)          
         list_item.setProperty('IsPlayable', 'true')
-        url = get_url(action = 'play_live', id = channels_list[num]['id'], mode = 'start', title = encode(channels_list[num]['name']))
+        url = get_url(action = 'play_live', id = channels_list[num]['id'], mode = 'start', title = channels_list[num]['name'])
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
 

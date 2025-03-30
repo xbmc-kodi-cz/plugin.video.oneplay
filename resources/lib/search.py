@@ -9,15 +9,10 @@ try:
 except ImportError:
     from xbmc import translatePath
     
-try:
-    from urllib import quote
-except ImportError:
-    from urllib.parse import quote  
-
+from urllib.parse import quote  
 
 from resources.lib.utils import get_url, plugin_id
 from resources.lib.session import Session
-from resources.lib.channels import Channels
 from resources.lib.api import API
 from resources.lib.epg import get_item_detail, epg_listitem
 

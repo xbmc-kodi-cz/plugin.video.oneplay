@@ -60,71 +60,53 @@ def remove_db():
             xbmcgui.Dialog().notification('Oneplay', 'Chyba při mazání keše!', xbmcgui.NOTIFICATION_ERROR, 5000)  
 
 def get_live_epg():
-    session = Session()
-    api = API()
-    epg_data = []
+    epg_data = {}
     epg = {}
-    if len(epg_data) == 0:
-        post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(datetime.now().timestamp()-3600).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(datetime.now().timestamp()).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
-        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session, nolog = True)
-        if 'err' not in data:
-            for channel in data['schedule']:
-                for item in channel['items']:
-                    startts = int(datetime.fromisoformat(item['startAt']).timestamp())
-                    endts = int(datetime.fromisoformat(item['endAt']).timestamp())
-                    epg_item = {'id' : item['id'], 'title' : item['title'], 'channel_id' : channel['channelId'], 'description' : item['description'], 'startts' : startts, 'endts' : endts, 'cover' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320'), 'poster' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')}
-                    epg_data.append(epg_item)
-    for item in epg_data:
+    post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(datetime.now().timestamp()-7200).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(datetime.now().timestamp()).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
+    epg_data = get_epg_data(post, None)
+    for key in epg_data:
+        item = epg_data[key]
         currentts = datetime.now().timestamp()
         if item['startts'] < currentts and item['endts'] > currentts:
             epg.update({item['channel_id'] : item})
     return epg
 
 def get_channel_epg(channel_id, from_ts, to_ts):
-    session = Session()
-    api = API()
     channels = Channels()
     channels_list = channels.get_channels_list('id')
     oneplay_number = channels_list[channel_id]['oneplay_number']
-    epg = {}
     post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":oneplay_number-1,"to":oneplay_number},"timeRange":{"from":datetime.fromtimestamp(from_ts-3600).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(to_ts-3600).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
+    return get_epg_data(post, channel_id)
+
+def get_day_epg(from_ts, to_ts):
+    post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(from_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(to_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
+    return get_epg_data(post, None)
+
+def get_epg_data(post, channel_id):
+    session = Session()
+    api = API()
+    epg = {}
     data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session, nolog = True)
     if 'err' not in data:
         for channel in data['schedule']:
-            if channel['channelId'] == channel_id:
+            if channel_id is None or channel['channelId'] == channel_id:
                 for item in channel['items']:
                     startts = int(datetime.fromisoformat(item['startAt']).timestamp())
                     endts = int(datetime.fromisoformat(item['endAt']).timestamp())
-                    if 'contentType' in item['actions'][0]['params']:
+                    if 'contentType' in item['actions'][0]['params'] or 'contentId' in item['actions'][0]['params']['payload']:
                         if item['actions'][0]['params']['contentType'] in ['show','movie']:
                             id = item['actions'][0]['params']['payload']['deeplink']['epgItem']
                         else:
                             id = item['actions'][0]['params']['payload']['contentId']
-                        epg_item = {'id' : id, 'title' : item['title'], 'channel_id' : channel_id, 'description' : item['description'], 'startts' : startts, 'endts' : endts, 'cover' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320'), 'poster' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')}
-                        epg.update({startts : epg_item})
+                        if channel_id is None:
+                            key = channel['channelId'] + str(startts)
+                        else:
+                            key = startts
+                        epg_item = {'id' : id, 'title' : item['title'], 'channel_id' : channel['channelId'], 'description' : item['description'], 'startts' : startts, 'endts' : endts, 'cover' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320'), 'poster' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')}
+                        epg.update({key : epg_item})
     return epg
 
-def get_day_epg(from_ts, to_ts):
-    session = Session()
-    api = API()
-    epg = {}
-    post = {"payload":{"criteria":{"channelSetId":"channel_list.1","viewport":{"channelRange":{"from":0,"to":200},"timeRange":{"from":datetime.fromtimestamp(from_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z',"to":datetime.fromtimestamp(to_ts).strftime('%Y-%m-%dT%H:%M:%S') + '.000Z'},"schema":"EpgViewportAbsolute"}},"requestedOutput":{"channelList":"none","datePicker":False,"channelSets":False}}}
-    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/epg.display', data = post, session = session, nolog = True)
-    if 'err' not in data:
-        for channel in data['schedule']:
-            for item in channel['items']:
-                startts = int(datetime.fromisoformat(item['startAt']).timestamp())
-                endts = int(datetime.fromisoformat(item['endAt']).timestamp())
-                if 'contentType' in item['actions'][0]['params'] or 'contentId' in item['actions'][0]['params']['payload']:
-                    if item['actions'][0]['params']['contentType'] == 'show':
-                        id = item['actions'][0]['params']['payload']['deeplink']['epgItem']
-                    else:
-                        id = item['actions'][0]['params']['payload']['contentId']
-                    epg_item = {'id' : id, 'title' : item['title'], 'channel_id' : channel['channelId'], 'description' : item['description'], 'startts' : startts, 'endts' : endts, 'cover' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320'), 'poster' : item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')}
-                    epg.update({channel['channelId'] + str(startts) : epg_item})
-    return epg
-
-def get_data_from_api(id):
+def get_item_detail_from_api(id):
     session = Session()
     api = API()
     item_detail = {}
@@ -184,7 +166,7 @@ def get_item_detail(id):
             country = row[5]
             genres = json.loads(row[6])
         if not row:
-            item_detail = get_data_from_api(id)
+            item_detail = get_item_detail_from_api(id)
             if len(item_detail) > 0:
                 db.execute('INSERT INTO items VALUES(?, ?, ?, ?, ?, ?, ?, ?)', (id, item_detail['description'], item_detail['original'], json.dumps(item_detail['cast']), json.dumps(item_detail['directors']), item_detail['year'], item_detail['country'], json.dumps(item_detail['genres'])))      
                 db.commit()            
@@ -192,7 +174,7 @@ def get_item_detail(id):
             item_detail = {'description' : description, 'original' : original, 'year' : year, 'genres' : genres, 'cast' : cast, 'directors' : directors, 'country' : country}
         close_db()            
     else:
-        item_detail = get_data_from_api(id)
+        item_detail = get_item_detail_from_api(id)
     return item_detail    
 
 def epg_listitem(list_item, epg, icon):

@@ -5,13 +5,7 @@ import xbmcaddon
 import xbmcgui
 import uuid
 
-try:
-    from urllib import urlencode
-except ImportError:
-    from urllib.parse import urlencode
-
-PY2 = sys.version_info[0] == 2
-PY3 = sys.version_info[0] == 3
+from urllib.parse import urlencode
 
 plugin_id = 'plugin.video.oneplay'
 day_translation = {'1' : 'Pondělí', '2' : 'Úterý', '3' : 'Středa', '4' : 'Čtvrtek', '5' : 'Pátek', '6' : 'Sobota', '0' : 'Neděle'}  
@@ -19,15 +13,6 @@ day_translation_short = {'1' : 'Po', '2' : 'Út', '3' : 'St', '4' : 'Čt', '5' :
 appVersion = '1.0.25'
 
 _url = sys.argv[0]
-
-def get_partnerId():
-    addon = xbmcaddon.Addon()
-    partnerId = '1111'
-    if addon.getSetting('service') == 'o2tv.cz':
-        partnerId = '3201'
-    elif addon.getSetting('service') == 'o2tv.sk':
-        partnerId = '3206'
-    return partnerId
 
 def check_settings():
     addon = xbmcaddon.Addon()
@@ -86,15 +71,3 @@ def get_color(settings_color):
         return color
     else:
         return ''
-    
-def decode(string_to_decode):
-    if PY2:
-        return string_to_decode.decode('utf-8')
-    else:
-        return string_to_decode
-
-def encode(string_to_encode):
-    if PY2:
-        return string_to_encode.encode('utf-8')
-    else:
-        return string_to_encode      

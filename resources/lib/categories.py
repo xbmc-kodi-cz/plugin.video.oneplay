@@ -8,9 +8,85 @@ import xbmcaddon
 from resources.lib.session import Session
 from resources.lib.api import API
 from resources.lib.epg import get_item_detail, epg_listitem
-from resources.lib.utils import get_url, encode, plugin_id, get_kodi_version
+from resources.lib.utils import get_url, plugin_id, get_kodi_version
 
-_handle = int(sys.argv[1])
+if len(sys.argv) > 1:
+    _handle = int(sys.argv[1])
+
+def get_episodes(carouselId, id, limit = 1000):
+    session = Session()
+    api = API()
+    get_page = True
+    page = 1
+    cnt = 0
+    episodes = {}
+    while get_page == True:
+        post = {"payload":{"carouselId":carouselId,"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":id,"sortOption":"DESC"}}}
+        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/carousel.display', data = post, session = session)
+        for item in data['carousel']['tiles']:
+            if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
+                cnt += 1
+                if 'subTitle' in item:
+                    item['title'] = item['title'] + ' ' + item['subTitle']
+                if 'tracking' in item and 'show' in item['tracking'] and 'season' in item['tracking']:
+                    season_title = item['tracking']['show']['title'] + ' / ' + item['tracking']['season']                    
+                else:
+                    season_title = ''
+                title = item['title']
+                image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
+                id = item['action']['params']['payload']['criteria']['contentId']
+                episodeId = int(id.replace('episode.',''))
+                if id not in episodes:
+                    episodes.update({episodeId : {'id' : id, 'show' : item['tracking']['show']['id'], 'season_title' : season_title, 'title' : title, 'image' : image}})
+                if cnt >= limit:
+                    get_page = False
+                    break
+        if data['carousel']['paging']['next'] == True:
+            page = page + 1
+        else:
+            get_page = False
+    return episodes
+
+def get_shows(id, last_season = False):
+    session = Session()
+    api = API()
+    post = {"payload":{"contentId":id}}
+    seasons = []
+    shows = []
+    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
+    for block in data['layout']['blocks']:
+        if block['schema'] == 'TabBlock' and block['template'] == 'tabs':
+            for tab in block['tabs']:
+                if tab['label']['name'] == 'Celé díly':
+                    if tab['isActive'] == True:
+                        data = block
+                    else:
+                        post = {"payload":{"tabId":tab['id']}}
+                        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/tab.display', data = post, session = session)
+    for block in data['layout']['blocks']:
+        if block['schema'] == 'CarouselBlock' and block['template'] in ['list','grid']:
+            for carousel in block['carousels']:
+                if 'criteria' in carousel:
+                    for criteria in carousel['criteria']:
+                        if criteria['schema'] == 'CarouselGenericFilter' and criteria['template'] == 'showSeason':
+                            first = True
+                            season_item = None
+                            for season in criteria['items']:   
+                                season_item = {'title' : season['label'], 'id' : season['criteria'], 'carouselId' : carousel['id']}
+                                if season_item not in seasons:
+                                    seasons.append(season_item)
+                                if last_season == True and first == True and '.' in season['label'] and season['label'].split('.')[0] != '1':
+                                    break
+                                first = False
+                if len(seasons) == 0:
+                    for item in carousel['tiles']:
+                        if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
+                            if 'subTitle' in item:
+                                item['title'] = item['title'] + ' ' + item['subTitle']
+                            image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
+                            show_item = {'title' : item['title'], 'id' : item['action']['params']['payload']['criteria']['contentId'], 'image' : image}
+                            shows.append(show_item)
+    return {'seasons' : seasons, 'shows' : shows}
 
 def list_categories(label):
     xbmcplugin.setPluginCategory(_handle, label)
@@ -110,7 +186,7 @@ def list_category(id, carouselId, criteria, label):
                                 xbmcgui.Dialog().notification('Oneplay','Neznámá položka: ' + item['action']['params']['schema'], xbmcgui.NOTIFICATION_INFO, 2000)                                    
                         if 'pagein' in carousel and carousel['paging']['next'] == True:
                             list_item = xbmcgui.ListItem(label='Následující strana')
-                            url = get_url(action='list_carousel', id = carousel['id'], criteria = encode(criteria), page = 2, label = label)  
+                            url = get_url(action='list_carousel', id = carousel['id'], criteria = criteria, page = 2, label = label)  
                             list_item.setArt({ 'thumb' : os.path.join(icons_dir , 'next_arrow.png'), 'icon' : os.path.join(icons_dir , 'next_arrow.png') })
                             xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)              
@@ -118,91 +194,49 @@ def list_category(id, carouselId, criteria, label):
 def list_season(carouselId, id, label):
     xbmcplugin.setPluginCategory(_handle, label)
     xbmcplugin.setContent(_handle, 'episodes')
-    session = Session()
-    api = API()
-    get_page = True
-    page = 1
     kodi_version = get_kodi_version()
-    while get_page == True:
-        post = {"payload":{"carouselId":carouselId,"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":id,"sortOption":"DESC"}}}
-        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/carousel.display', data = post, session = session)
-        for item in data['carousel']['tiles']:
-            if 'tracking' in item and 'show' in item['tracking']:
-                print(item['tracking']['show'])
-
-            if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
-                if 'subTitle' in item:
-                    item['title'] = item['title'] + ' ' + item['subTitle']
-                list_item = xbmcgui.ListItem(label = item['title'])
-                image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
-                list_item.setArt({'poster': image})    
-                if kodi_version >= 20:
-                    infotag = list_item.getVideoInfoTag()
-                    infotag.setMediaType('episode')
-                else:
-                    list_item.setInfo('video', {'mediatype' : 'episode'})
-                if kodi_version >= 20:
-                    infotag.setTitle(item['title'])
-                else:
-                    list_item.setInfo('video', {'title' : item['title']})
-                if 'tracking' in item and 'show' in item['tracking'] and 'season' in item['tracking']:
-                    if kodi_version >= 20:
-                        infotag.setTvShowTitle(item['tracking']['show']['title'] + ' / ' + item['tracking']['season'])
-                    else:
-                        list_item.setInfo('video', {'tvshowtitle' : item['tracking']['show']['title'] + ' / ' + item['tracking']['season']})                
-                list_item.setContentLookup(False)          
-                list_item.setProperty('IsPlayable', 'true')
-                url = get_url(action = 'play_archive', id = item['action']['params']['payload']['criteria']['contentId'])
-                xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
-        if data['carousel']['paging']['next'] == True:
-            page = page + 1
+    episodes = get_episodes(carouselId, id)
+    for episodeId in episodes:
+        item = episodes[episodeId]
+        list_item = xbmcgui.ListItem(label = item['title'])
+        list_item.setArt({'poster': item['image']})    
+        if kodi_version >= 20:
+            infotag = list_item.getVideoInfoTag()
+            infotag.setMediaType('episode')
         else:
-            get_page = False
+            list_item.setInfo('video', {'mediatype' : 'episode'})
+        if kodi_version >= 20:
+            infotag.setTitle(item['title'])
+        else:
+            list_item.setInfo('video', {'title' : item['title']})
+        if kodi_version >= 20:
+            infotag.setTvShowTitle(item['season_title'])
+        else:
+            list_item.setInfo('video', {'tvshowtitle' : item['season_title']})                
+        url = get_url(action = 'play_archive', id = item['id'])
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)  
 
 def list_show(id, label):
     xbmcplugin.setPluginCategory(_handle, label)
     xbmcplugin.setContent(_handle, 'episodes')
-    session = Session()
-    api = API()
-    post = {"payload":{"contentId":id}}
-    data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/page.content.display', data = post, session = session)
-    for block in data['layout']['blocks']:
-        if block['schema'] == 'TabBlock' and block['template'] == 'tabs':
-            for tab in block['tabs']:
-                if tab['label']['name'] == 'Celé díly':
-                    if tab['isActive'] == True:
-                        data = block
-                    else:
-                        post = {"payload":{"tabId":tab['id']}}
-                        data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/tab.display', data = post, session = session)
-    for block in data['layout']['blocks']:
-        if block['schema'] == 'CarouselBlock' and block['template'] in ['list','grid']:
-            for carousel in block['carousels']:
-                season_select = False
-                if 'criteria' in carousel:
-                    for criteria in carousel['criteria']:
-                        if criteria['schema'] == 'CarouselGenericFilter' and criteria['template'] == 'showSeason':
-                            for item in criteria['items']:           
-                                season_select = True
-                                list_item = xbmcgui.ListItem(label = item['label'])
-                                url = get_url(action = 'list_season', carouselId = carousel['id'], id = item['criteria'], label = label + ' / ' + item['label'])
-                                menus = [('Přidat do oblíbených Oneplay', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourite&type=season&id=' + item['criteria'] + '~' + carousel['id'] + '&image=None&title=' + label.split(' / ')[-1] + ' / ' + item['label'] + ')')]
-                                list_item.addContextMenuItems(menus)       
-                                xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-                if season_select == False:
-                    for item in carousel['tiles']:
-                        if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
-                            if 'subTitle' in item:
-                                item['title'] = item['title'] + ' ' + item['subTitle']
-                            list_item = xbmcgui.ListItem(label = item['title'])
-                            image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
-                            list_item.setArt({'poster': image})    
-                            list_item.setInfo('video', {'mediatype':'movie', 'title': item['title']}) 
-                            list_item.setContentLookup(False)          
-                            list_item.setProperty('IsPlayable', 'true')
-                            url = get_url(action = 'play_archive', id = item['action']['params']['payload']['criteria']['contentId'])
-                            xbmcplugin.addDirectoryItem(_handle, url, list_item, False)                            
+    data = get_shows(id)
+    if len(data['seasons']) > 0:
+        for season in data['seasons']:
+            list_item = xbmcgui.ListItem(label = season['title'])
+            url = get_url(action = 'list_season', carouselId = season['carouselId'], id = season['id'], label = label + ' / ' + season['title'])
+            menus = [('Přidat do oblíbených Oneplay', 'RunPlugin(plugin://' + plugin_id + '?action=add_favourite&type=season&id=' + season['id'] + '~' + season['carouselId'] + '&image=None&title=' + label.split(' / ')[-1] + ' / ' + season['title'] + ')')]
+            list_item.addContextMenuItems(menus)       
+            xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+    else:
+        for show in data['shows']:
+            list_item = xbmcgui.ListItem(label = show['title'])
+            list_item.setArt({'poster': show['image']})    
+            list_item.setInfo('video', {'mediatype':'movie', 'title': show['title']}) 
+            list_item.setContentLookup(False)          
+            list_item.setProperty('IsPlayable', 'true')
+            url = get_url(action = 'play_archive', id = show['id'])
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)                            
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)  
 
 def list_carousel(id, criteria, page, label):

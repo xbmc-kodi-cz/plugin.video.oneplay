@@ -1,3 +1,7 @@
+1.2.2 (30.03.2025)
+- úprava stahování EPG pro živé vysílání
+- odstranění redundatního a nepoužitého kódu
+
 1.2.1 (29.03.2025)
 - přidání do Oblíbených je možné i z výsledků vyhledávání
 - ošetření opačného řazení sérií u nejnovějších epizod
@@ -16,6 +20,3 @@
 - optimalizace stahování EPG dat
 - při chybě při výběru profilu se provede automaticky znovunačtení profilů
 - ošetření chyby v datech Oneplay
-
-1.1.5 (25.03.2025)
-- vypnuté logování odpovědí u EPG API

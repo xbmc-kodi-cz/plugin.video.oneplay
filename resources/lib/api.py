@@ -9,20 +9,14 @@ import socket
 from websocket import create_connection
 import uuid
 
-try:
-    from urllib2 import urlopen, Request, HTTPError # type: ignore
-except ImportError:
-    from urllib.request import urlopen, Request
-    from urllib.error import HTTPError
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError
 
-from resources.lib.utils import PY2, appVersion
+from resources.lib.utils import appVersion
 
 class API:
     def __init__(self):
-        if PY2:
-            self.headers = {'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0', 'Accept-Encoding' : 'br, deflate', 'Accept' : '*/*', 'Content-type' : 'application/json;charset=UTF-8'} 
-        else:
-            self.headers = {'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0', 'Accept-Encoding' : 'gzip', 'Accept' : '*/*', 'Content-type' : 'application/json;charset=UTF-8'} 
+        self.headers = {'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0', 'Accept-Encoding' : 'gzip', 'Accept' : '*/*', 'Content-type' : 'application/json;charset=UTF-8'} 
 
     def call_api(self, url, data, session = None, nolog = False, sensitive = False):
         addon = xbmcaddon.Addon()
@@ -43,7 +37,7 @@ class API:
             post = json.dumps(post).encode("utf-8")
             request = Request(url = url , data = post, headers = self.headers)
             response = urlopen(request, timeout = 20)
-            if not PY2 and response.getheader("Content-Encoding") == 'gzip':
+            if response.getheader("Content-Encoding") == 'gzip':
                 gzipFile = gzip.GzipFile(fileobj = response)
                 data = gzipFile.read()
             else:

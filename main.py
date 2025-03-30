@@ -6,17 +6,14 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 
-try:
-    from urlparse import parse_qsl # type: ignore
-except ImportError:
-    from urllib.parse import parse_qsl
+from urllib.parse import parse_qsl
 
 from resources.lib.utils import get_url, check_settings
 from resources.lib.live import list_live
 from resources.lib.epg import remove_db
 from resources.lib.archive import list_archive, list_archive_days, list_program
 from resources.lib.iptvsc import generate_playlist, generate_epg, iptv_sc_rec
-from resources.lib.stream import play_live, play_archive, play_catchup
+from resources.lib.stream import play_stream, play_catchup
 from resources.lib.channels import Channels, manage_channels, list_channels_list_backups, list_channels_edit, edit_channel, delete_channel, change_channels_numbers
 from resources.lib.channels import list_channels_groups, add_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_add_all_channels, edit_channel_group_delete_channel, select_channel_group, delete_channel_group
 from resources.lib.recordings import list_recordings, delete_recording, list_planning_recordings, list_rec_days, future_program, add_recording
@@ -132,9 +129,9 @@ def router(paramstring):
             delete_search(params['query'])
 
         elif params['action'] == 'play_live':
-            play_live(params['id'], params['mode'])
+            play_stream(params['id'], params['mode'])
         elif params['action'] == 'play_archive':
-            play_archive(params['id'])
+            play_stream(params['id'], 'archive')
 
         elif params['action'] == 'list_settings':
             list_settings(params['label'])
@@ -227,7 +224,7 @@ def router(paramstring):
             if 'catchup_start_ts' in params and 'catchup_end_ts' in params:
                 play_catchup(id = params['id'], start_ts = params['catchup_start_ts'], end_ts = params['catchup_end_ts'])
             else:
-                play_live(params['id'], 'start')
+                play_stream(params['id'], 'start')
         elif params['action'] == 'iptv_sc_rec':
             iptv_sc_rec(params['channel'], params['startdatetime'])
 
