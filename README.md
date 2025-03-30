@@ -6,6 +6,9 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <a href="https://www.xbmc-kodi.cz/prispevek-oneplay">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 </p>
 <p>
+1.2.3 (30.03.2025)<br>
+- oprava spouštění epizod v kategoriích<br><br>
+
 1.2.2 (30.03.2025)<br>
 - úprava stahování EPG pro živé vysílání<br>
 - odstranění redundantního a nepoužitého kódu<br><br>
@@ -23,9 +26,4 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 - spouštění živého vysílání z kategoriích<br>
 - zobrazení konkrétní vrácené chyby při pokusu o přehrání streamu místo obecné chyby<br>
 - u TV (Živé vysílání i Archiv) se dá v nastavení zapnout obecné zobrazení seznamů<br><br>
-
-1.1.6 (26.03.2025)<br>
-- optimalizace stahování EPG dat<br>
-- při chybě při výběru profilu se provede automaticky znovunačtení profilů<br>
-- ošetření chyby v datech Oneplay<br><br>
 </p>

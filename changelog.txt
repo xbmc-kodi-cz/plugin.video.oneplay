@@ -1,3 +1,6 @@
+1.2.3 (30.03.2025)
+- oprava spouštění epizod v kategoriích
+
 1.2.2 (30.03.2025)
 - úprava stahování EPG pro živé vysílání
 - odstranění redundantního a nepoužitého kódu
@@ -15,8 +18,3 @@
 - spouštění živého vysílání z kategoriích
 - zobrazení konkrétní vrácené chyby při pokusu o přehrání streamu místo obecné chyby
 - u TV (Živé vysílání i Archiv) se dá v nastavení zapnout obecné zobrazení seznamů
-
-1.1.6 (26.03.2025)
-- optimalizace stahování EPG dat
-- při chybě při výběru profilu se provede automaticky znovunačtení profilů
-- ošetření chyby v datech Oneplay

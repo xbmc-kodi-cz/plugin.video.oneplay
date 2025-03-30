@@ -212,7 +212,9 @@ def list_season(carouselId, id, label):
         if kodi_version >= 20:
             infotag.setTvShowTitle(item['season_title'])
         else:
-            list_item.setInfo('video', {'tvshowtitle' : item['season_title']})                
+            list_item.setInfo('video', {'tvshowtitle' : item['season_title']})   
+        list_item.setContentLookup(False)          
+        list_item.setProperty('IsPlayable', 'true')
         url = get_url(action = 'play_archive', id = item['id'])
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)  
