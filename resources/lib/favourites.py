@@ -130,7 +130,9 @@ def list_favourites_new(label):
                 for id in favourites[type]:
                     item = favourites[type][id]
                     if type == 'show':
-                        seasons += get_shows(id, True)['seasons']
+                        seasons_items = get_shows(id, True)['seasons']
+                        for season in seasons_items:
+                            seasons.append({'title' : item['title'] + ' / ' + season['title'], 'id': season['id'], 'carouselId': season['carouselId']})
                     if type == 'season':
                         split_id = id.split('~')
                         id = split_id[0]
@@ -140,7 +142,7 @@ def list_favourites_new(label):
                             seasons.append(season_item)
     episodes = {}
     for season in seasons:
-        episodes.update(get_episodes(season['carouselId'], season['id'], limit))
+        episodes.update(get_episodes(season['carouselId'], season['id'], season['title'], limit))
     for episodeId in sorted(episodes.keys(), reverse = True):
         item = episodes[episodeId]
         if item['id'] not in blacklist:

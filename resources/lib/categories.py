@@ -13,7 +13,7 @@ from resources.lib.utils import get_url, plugin_id, get_kodi_version
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
 
-def get_episodes(carouselId, id, limit = 1000):
+def get_episodes(carouselId, id, season_title, limit = 1000):
     session = Session()
     api = API()
     get_page = True
@@ -23,26 +23,28 @@ def get_episodes(carouselId, id, limit = 1000):
     while get_page == True:
         post = {"payload":{"carouselId":carouselId,"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":id,"sortOption":"DESC"}}}
         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/carousel.display', data = post, session = session)
-        for item in data['carousel']['tiles']:
-            if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:
-                cnt += 1
-                if 'subTitle' in item:
-                    item['title'] = item['title'] + ' ' + item['subTitle']
-                if 'tracking' in item and 'show' in item['tracking'] and 'season' in item['tracking']:
-                    season_title = item['tracking']['show']['title'] + ' / ' + item['tracking']['season']                    
-                else:
-                    season_title = ''
-                title = item['title']
-                image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
-                id = item['action']['params']['payload']['criteria']['contentId']
-                episodeId = int(id.replace('episode.',''))
-                if id not in episodes:
-                    episodes.update({episodeId : {'id' : id, 'show' : item['tracking']['show']['id'], 'season_title' : season_title, 'title' : title, 'image' : image}})
-                if cnt >= limit:
-                    get_page = False
-                    break
-        if data['carousel']['paging']['next'] == True:
-            page = page + 1
+        if not 'err' in data and 'carousel' in data:
+            for item in data['carousel']['tiles']:
+                if 'params' in item['action'] and ('contentId' in item['action']['params']['payload'] or 'contentId' in item['action']['params']['payload']['criteria']):
+                    cnt += 1
+                    if 'subTitle' in item:
+                        item['title'] = item['title'] + ' ' + item['subTitle']
+                    title = item['title']
+                    image = item['image'].replace('{WIDTH}', '480').replace('{HEIGHT}', '320')
+                    if 'contentId' in item['action']['params']['payload']:
+                        id = item['action']['params']['payload']['contentId']
+                    else:
+                        id = item['action']['params']['payload']['criteria']['contentId']
+                    episodeId = int(id.split('.')[1])
+                    if id not in episodes:
+                        episodes.update({episodeId : {'id' : id, 'season_title' : season_title, 'title' : title, 'image' : image}})
+                    if cnt >= limit:
+                        get_page = False
+                        break
+            if data['carousel']['paging']['next'] == True:
+                page = page + 1
+            else:
+                get_page = False
         else:
             get_page = False
     return episodes
@@ -194,8 +196,9 @@ def list_category(id, carouselId, criteria, label):
 def list_season(carouselId, id, label):
     xbmcplugin.setPluginCategory(_handle, label)
     xbmcplugin.setContent(_handle, 'episodes')
+    season_title = label.split(' / ')[-2] + ' / ' + label.split(' / ')[-1]
     kodi_version = get_kodi_version()
-    episodes = get_episodes(carouselId, id)
+    episodes = get_episodes(carouselId, id, season_title)
     for episodeId in episodes:
         item = episodes[episodeId]
         list_item = xbmcgui.ListItem(label = item['title'])

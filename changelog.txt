@@ -1,3 +1,6 @@
+1.2.4 (31.03.2025)
+- ošetření odlišné struktury v datech epizod z TV
+
 1.2.3 (30.03.2025)
 - oprava spouštění epizod v kategoriích
 
@@ -12,9 +15,3 @@
 
 1.2.0 (29.03.2025)
 - zobrazení nejnovějších epizod seriálů v Oblíbených
-
-1.1.7 (28.03.2025)
-- doplnění některých chybějících položek v kategoriích
-- spouštění živého vysílání z kategoriích
-- zobrazení konkrétní vrácené chyby při pokusu o přehrání streamu místo obecné chyby
-- u TV (Živé vysílání i Archiv) se dá v nastavení zapnout obecné zobrazení seznamů

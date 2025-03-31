@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="1.2.3">
+﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="1.2.4">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="inputstream.adaptive" version="19.0.0"/>
@@ -38,6 +38,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
+1.2.4 (31.03.2025)
+- ošetření odlišné struktury v datech epizod z TV
+
 1.2.3 (30.03.2025)
 - oprava spouštění epizod v kategoriích
 
@@ -52,12 +55,6 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
 
 1.2.0 (29.03.2025)
 - zobrazení nejnovějších epizod seriálů v Oblíbených
-
-1.1.7 (28.03.2025)
-- doplnění některých chybějících položek v kategoriích
-- spouštění živého vysílání z kategoriích
-- zobrazení konkrétní vrácené chyby při pokusu o přehrání streamu místo obecné chyby
-- u TV (Živé vysílání i Archiv) se dá v nastavení zapnout obecné zobrazení seznamů
     </news>
     <assets>
         <icon>icon.jpg</icon>
