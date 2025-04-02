@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="1.2.4">
+﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="1.2.5">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="inputstream.adaptive" version="19.0.0"/>
@@ -38,6 +38,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
+1.2.5 (02.03.2025)
+- v nastavení lze zapnout preferování HLS streamu (u IPTV může řešit problémy s DRM)
+- u nejnovějších epizod seriálů se zobrazují jen díly poslední série
+
 1.2.4 (31.03.2025)
 - ošetření odlišné struktury v datech epizod z TV
 
@@ -52,9 +56,6 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
 - přidání do Oblíbených je možné i z výsledků vyhledávání
 - ošetření opačného řazení sérií u nejnovějších epizod
 - úprava metadat
-
-1.2.0 (29.03.2025)
-- zobrazení nejnovějších epizod seriálů v Oblíbených
     </news>
     <assets>
         <icon>icon.jpg</icon>

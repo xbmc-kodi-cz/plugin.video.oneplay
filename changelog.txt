@@ -1,3 +1,7 @@
+1.2.5 (02.03.2025)
+- v nastavení lze zapnout preferování HLS streamu (u IPTV může řešit problémy s DRM)
+- u nejnovějších epizod seriálů se zobrazují jen díly poslední série
+
 1.2.4 (31.03.2025)
 - ošetření odlišné struktury v datech epizod z TV
 
@@ -12,6 +16,3 @@
 - přidání do Oblíbených je možné i z výsledků vyhledávání
 - ošetření opačného řazení sérií u nejnovějších epizod
 - úprava metadat
-
-1.2.0 (29.03.2025)
-- zobrazení nejnovějších epizod seriálů v Oblíbených

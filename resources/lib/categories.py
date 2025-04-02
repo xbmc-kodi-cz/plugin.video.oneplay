@@ -75,11 +75,13 @@ def get_shows(id, last_season = False):
                             season_item = None
                             for season in criteria['items']:   
                                 season_item = {'title' : season['label'], 'id' : season['criteria'], 'carouselId' : carousel['id']}
-                                if season_item not in seasons:
+                                if last_season == False and season_item not in seasons:
                                     seasons.append(season_item)
                                 if last_season == True and first == True and '.' in season['label'] and season['label'].split('.')[0] != '1':
                                     break
                                 first = False
+                            if last_season == True:
+                                seasons.append(season_item)
                 if len(seasons) == 0:
                     for item in carousel['tiles']:
                         if 'params' in item['action'] and 'contentId' in item['action']['params']['payload']['criteria']:

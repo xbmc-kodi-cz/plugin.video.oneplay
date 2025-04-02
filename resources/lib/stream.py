@@ -96,7 +96,13 @@ def play_stream(id, mode):
             if asset['protocol'] == 'hls':
                 if 'drm' not in asset:
                     url_hls = asset['src']
-        if url_dash is not None:
+        if addon.getSetting('prefer_hls') == 'true' and url_hls is not None:
+            list_item = xbmcgui.ListItem(path = url_hls)
+            list_item.setProperty('inputstream', 'inputstream.adaptive')
+            list_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
+            list_item.setContentLookup(False)       
+            xbmcplugin.setResolvedUrl(_handle, True, list_item)
+        elif url_dash is not None:
             list_item = xbmcgui.ListItem(path = url_dash)
             list_item.setProperty('inputstream', 'inputstream.adaptive')
             list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
@@ -122,6 +128,8 @@ def play_stream(id, mode):
                 if 'playerControl' in data and 'liveControl' in data['playerControl'] and 'channelId' in data['playerControl']['liveControl']:
                     play_stream(data['playerControl']['liveControl']['channelId'].replace('channel.',''), 'live')
             else:
+                list_item.setProperty('inputstream', 'inputstream.adaptive')
+                list_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
                 list_item = xbmcgui.ListItem(path = url_hls)
                 list_item.setContentLookup(False)       
                 xbmcplugin.setResolvedUrl(_handle, True, list_item)

@@ -6,6 +6,10 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <a href="https://www.xbmc-kodi.cz/prispevek-oneplay">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 </p>
 <p>
+1.2.5 (02.03.2025)<br>
+- v nastavení lze zapnout preferování HLS streamu (u IPTV může řešit problémy s DRM)<br>
+- u nejnovějších epizod seriálů se zobrazují jen díly poslední série<br><br>
+
 1.2.4 (31.03.2025)<br>
 - ošetření odlišné struktury v datech epizod z TV<br><br>
 
@@ -20,7 +24,4 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 - přidání do Oblíbených je možné i z výsledků vyhledávání<br>
 - ošetření opačného řazení sérií u nejnovějších epizod<br>
 - úprava metadat<br><br>
-
-1.2.0 (29.03.2025)<br>
-- zobrazení nejnovějších epizod seriálů v Oblíbených<br><br>
 </p>
