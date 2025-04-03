@@ -28,13 +28,13 @@ def play_catchup(id, start_ts, end_ts):
         play_stream(id, 'start')
 
 def play_stream(id, mode):
+    addon = xbmcaddon.Addon()
     session = Session()
     api = API()
     url_dash = None
     url_dash_drm = None
     url_hls = None
     if mode in ['live', 'start']:
-        addon = xbmcaddon.Addon()
         channels = Channels()
         channels_list = channels.get_channels_list('id')
         channel = channels_list[id]

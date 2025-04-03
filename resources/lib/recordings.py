@@ -26,7 +26,6 @@ def list_recordings(label):
     url = get_url(action='list_planning_recordings', label = label + ' / ' + 'Plánování')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     list_category('8', None, None, label)
-    xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)              
 
 def delete_recording(id):
     session = Session()

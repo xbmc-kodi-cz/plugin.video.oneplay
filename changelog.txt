@@ -1,5 +1,8 @@
+1.2.7 (03.04.2025)
+- oprava mazání a zobrazení nahrávek
+
 1.2.6 (03.04.2025)
-- vyřezení InputStream Helperu
+- vyřazení InputStream Helperu
 
 1.2.5 (02.03.2025)
 - v nastavení lze zapnout preferování HLS streamu (u IPTV může řešit problémy s DRM)
@@ -10,7 +13,3 @@
 
 1.2.3 (30.03.2025)
 - oprava spouštění epizod v kategoriích
-
-1.2.2 (30.03.2025)
-- úprava stahování EPG pro živé vysílání
-- odstranění redundantního a nepoužitého kódu
