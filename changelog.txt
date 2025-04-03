@@ -1,3 +1,6 @@
+1.2.6 (03.04.2025)
+- vyřezení InputStream Helperu
+
 1.2.5 (02.03.2025)
 - v nastavení lze zapnout preferování HLS streamu (u IPTV může řešit problémy s DRM)
 - u nejnovějších epizod seriálů se zobrazují jen díly poslední série
@@ -11,8 +14,3 @@
 1.2.2 (30.03.2025)
 - úprava stahování EPG pro živé vysílání
 - odstranění redundantního a nepoužitého kódu
-
-1.2.1 (29.03.2025)
-- přidání do Oblíbených je možné i z výsledků vyhledávání
-- ošetření opačného řazení sérií u nejnovějších epizod
-- úprava metadat

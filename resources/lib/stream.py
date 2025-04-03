@@ -114,12 +114,12 @@ def play_stream(id, mode):
             list_item.setProperty('inputstream', 'inputstream.adaptive')
             list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
             if drm is not None:
-                from inputstreamhelper import Helper # type: ignore
-                is_helper = Helper('mpd', drm = 'com.widevine.alpha')
-                if is_helper.check_inputstream():            
-                    list_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-                    from urllib.parse import urlencode
-                    list_item.setProperty('inputstream.adaptive.license_key', drm['licenceUrl'] + '|' + urlencode({'x-axdrm-message' : drm['token']}) + '|R{SSM}|')                
+                # from inputstreamhelper import Helper # type: ignore
+                # is_helper = Helper('mpd', drm = 'com.widevine.alpha')
+                # if is_helper.check_inputstream():            
+                list_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+                from urllib.parse import urlencode
+                list_item.setProperty('inputstream.adaptive.license_key', drm['licenceUrl'] + '|' + urlencode({'x-axdrm-message' : drm['token']}) + '|R{SSM}|')                
             list_item.setMimeType('application/dash+xml')
             list_item.setContentLookup(False)       
             xbmcplugin.setResolvedUrl(_handle, True, list_item)
