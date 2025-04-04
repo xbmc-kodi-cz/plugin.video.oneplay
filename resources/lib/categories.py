@@ -20,8 +20,9 @@ def get_episodes(carouselId, id, season_title, limit = 1000):
     page = 1
     cnt = 0
     episodes = {}
+    filterCriterias = id
     while get_page == True:
-        post = {"payload":{"carouselId":carouselId,"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":id,"sortOption":"DESC"}}}
+        post = {"payload":{"carouselId":carouselId,"paging":{"count":12,"position":12*(page-1)+1},"criteria":{"filterCriterias":filterCriterias,"sortOption":"DESC"}}}
         data = api.call_api(url = 'https://http.cms.jyxo.cz/api/v3/carousel.display', data = post, session = session)
         if not 'err' in data and 'carousel' in data:
             for item in data['carousel']['tiles']:
@@ -37,6 +38,7 @@ def get_episodes(carouselId, id, season_title, limit = 1000):
                         id = item['action']['params']['payload']['criteria']['contentId']
                     episodeId = int(id.split('.')[1])
                     if id not in episodes:
+                        print({episodeId : {'id' : id, 'season_title' : season_title, 'title' : title, 'image' : image}})
                         episodes.update({episodeId : {'id' : id, 'season_title' : season_title, 'title' : title, 'image' : image}})
                     if cnt >= limit:
                         get_page = False

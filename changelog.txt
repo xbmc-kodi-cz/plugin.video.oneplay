@@ -1,3 +1,6 @@
+1.2.9 (04.04.2025)
+- oprava načítání stránkování epizod
+
 1.2.8 (04.04.2025)
 - oprava spouštění HLS-only streamů
 
@@ -10,6 +13,3 @@
 1.2.5 (02.03.2025)
 - v nastavení lze zapnout preferování HLS streamu (u IPTV může řešit problémy s DRM)
 - u nejnovějších epizod seriálů se zobrazují jen díly poslední série
-
-1.2.4 (31.03.2025)
-- ošetření odlišné struktury v datech epizod z TV
