@@ -6,6 +6,9 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <a href="https://www.xbmc-kodi.cz/prispevek-oneplay">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 </p>
 <p>
+1.2.8 (04.04.2025)<br>
+- oprava spouštění HLS-only streamů<br><br>
+
 1.2.7 (03.04.2025)<br>
 - oprava mazání a zobrazení nahrávek<br><br>
 
@@ -18,11 +21,4 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 
 1.2.4 (31.03.2025)<br>
 - ošetření odlišné struktury v datech epizod z TV<br><br>
-
-1.2.3 (30.03.2025)<br>
-- oprava spouštění epizod v kategoriích<br><br>
-
-1.2.2 (30.03.2025)<br>
-- úprava stahování EPG pro živé vysílání<br>
-- odstranění redundantního a nepoužitého kódu<br><br>
 </p>

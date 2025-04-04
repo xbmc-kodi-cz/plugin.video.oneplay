@@ -1,3 +1,6 @@
+1.2.8 (04.04.2025)
+- oprava spouštění HLS-only streamů
+
 1.2.7 (03.04.2025)
 - oprava mazání a zobrazení nahrávek
 
@@ -10,6 +13,3 @@
 
 1.2.4 (31.03.2025)
 - ošetření odlišné struktury v datech epizod z TV
-
-1.2.3 (30.03.2025)
-- oprava spouštění epizod v kategoriích

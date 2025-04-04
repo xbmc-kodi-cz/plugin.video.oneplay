@@ -128,6 +128,7 @@ def play_stream(id, mode):
                 if 'playerControl' in data and 'liveControl' in data['playerControl'] and 'channelId' in data['playerControl']['liveControl']:
                     play_stream(data['playerControl']['liveControl']['channelId'].replace('channel.',''), 'live')
             else:
+                list_item = xbmcgui.ListItem(path = url_hls)
                 list_item.setProperty('inputstream', 'inputstream.adaptive')
                 list_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
                 list_item = xbmcgui.ListItem(path = url_hls)
