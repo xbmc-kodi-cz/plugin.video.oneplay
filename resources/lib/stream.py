@@ -84,7 +84,7 @@ def get_keepalive_url(manifest, content):
 def get_list_item(manifest_type, url, drm, next_url, next_drm):
     """Vytvoření list_item a spuštění (v případě dalšího pořadu přidání do playlistu)"""
     addon = xbmcaddon.Addon()
-    headers = urlencode({'User-Agent': API().UA, 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept': '*/*'})
+    headers = urlencode({'User-Agent': API().UA, 'Accept': '*/*'})
     def configure_item(item_url, item_drm):
         item = xbmcgui.ListItem(path=item_url)
         item.setContentLookup(False)

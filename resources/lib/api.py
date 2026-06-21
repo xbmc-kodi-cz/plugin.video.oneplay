@@ -22,12 +22,51 @@ class API:
         self.UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0'
         self.HEADERS = {'User-Agent' : self.UA, 'Accept-Encoding' : 'gzip', 'Accept' : '*/*', 'Content-type' : 'application/json;charset=UTF-8'} 
         self.APPVERSION = 'R11.33'
-        self.APIVERSION = 'v1.11'
+        self.BASE_API_VERSION = 'v1.11'
+        self.API_VERSION_FILE = {'filename': 'api_version.txt', 'description': 'verze API'}
+
+    def get_version(self):
+        import requests
+        self.load_api_version()
+        start_version = int(self.api_version.split('.')[1])
+        for minor in range(start_version+1, 50):
+            version = str(minor).zfill(2)
+            url = f"{self.APIURL}v1.{version}/user.login.step"
+            response = requests.post(url, json={})
+            if response.status_code not in [400, 404]:
+                return
+            elif response.status_code == 400:
+                self.api_version = f"v1.{version}"
+                self.save_api_version()
+                return
+
+    def load_api_version(self):
+        """Načte verzi API"""
+        from resources.lib.settings import Settings
+        settings = Settings()
+        data = settings.load_json_data(file_info=self.API_VERSION_FILE)
+        if data:
+            try:
+                data = json.loads(data)
+                self.api_version = data.get('api_version', self.BASE_API_VERSION)
+            except (json.JSONDecodeError, ValueError):
+                pass                
+        else:
+            self.api_version = self.BASE_API_VERSION
+            self.save_api_version()
+
+    def save_api_version(self):
+        """Uloží verzi API"""
+        from resources.lib.settings import Settings
+        settings = Settings()
+        data = json.dumps({'api_version': self.api_version})
+        settings.save_json_data(file_info=self.API_VERSION_FILE, data=data)
 
     def call_api(self, api, data, session=None, sensitive=False):
         """Volání API Oneplay včetně ošetření logování"""
         addon = xbmcaddon.Addon()
-        url = f"{self.APIURL}{self.APIVERSION}/{api}"
+        self.load_api_version()
+        url = f"{self.APIURL}{self.api_version}/{api}"
         if session is not None and session.token:
             self.HEADERS['Authorization'] = f"Bearer {session.token}"
         if addon.getSetting('log_request_url') == 'true':
@@ -78,6 +117,8 @@ class API:
             return {'result': {'status': 'Ok', 'data': final_data.get('data', {})}}
         except (HTTPError, socket.timeout, socket.error) as e:
             xbmc.log(f"Oneplay > Network Error: {str(e)}")
+            if str(e) == 'HTTP Error 404: Not Found':
+                self.get_version()
             return {'result': {'status': 'Error', 'message': 'Síťová chyba nebo timeout'}}
         except Exception as e:
             xbmc.log(f"Oneplay > Neočekávaná chyba: {str(e)}")
@@ -103,7 +144,10 @@ class API:
     def user_login_step(self, username, password):
         """Přihlášení s podporou výběru účtu (ShowAccountChooserStep)"""
         post = {"payload": {"command": {"schema": "LoginWithCredentialsCommand", "email": username, "password": password}}}
-        data = self._check_response(self.call_api('user.login.step', data=post, sensitive=True), 'Problém při přihlášení')
+        response = self.call_api('user.login.step', data=post, sensitive=True)
+        if response.get('result', {}).get('status') != 'Ok':
+            response = self.call_api('user.login.step', data=post, sensitive=True)
+        data = self._check_response(response, 'Problém při přihlášení')
         if data.get('step', {}).get('schema') == 'ShowAccountChooserStep': # pokud je vyžadovaný výběr účtu
             from resources.lib.profiles import get_account_id
             auth_token = data['step']['authToken']
@@ -191,7 +235,7 @@ class API:
                     xbmcgui.Dialog().notification('Oneplay', 'Nesprávný PIN', xbmcgui.NOTIFICATION_ERROR, 5000)
                     pin = '1621'
             post['authorization'] = [{"schema": "PinRequestAuthorization", "pin": str(pin), "type": "parental"}]
-            return self.content_play(post, session)
+            return self.content_play(post, session, is_next=is_next)
         else:
             if not is_next:
                 xbmcgui.Dialog().notification('Oneplay', 'Chyba při přehrání', xbmcgui.NOTIFICATION_ERROR, 2000)

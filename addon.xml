@@ -38,6 +38,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
+v2.2.4 (21.6.2026)
+- automatická aktualizace verze API
+- oprava posílání PINu u následujícího pořadu
+
 v2.2.3 (13.6.2026)
 - oprava načítání účtů
 - oprava parsování výsledků vyhledávání
@@ -51,10 +55,6 @@ v2.2.1 (5.5.2026)
 v2.2.0 (3.5.2026)
 - oprava nahrávání z IPTV SC
 - oprava labelu v kontextovém menu
-
-v2.1.9 (14.4.2026)
-- oprava keepalive pro některé kanály
-- vynucení přepsání EPG cache při nenalezení pořadu nebo generování EPG pro IPTV SC
     </news>
     <assets>
         <icon>icon.jpg</icon>
