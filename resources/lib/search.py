@@ -12,7 +12,7 @@ except ImportError:
     
 from urllib.parse import quote  
 
-from resources.lib.utils import get_url, plugin_id
+from resources.lib.utils import get_url, plugin_id, display_message
 from resources.lib.categories import page_search_display
 
 _handle = int(sys.argv[1])
@@ -39,7 +39,7 @@ def program_search(query, label):
         kb.doModal()
         if not kb.isConfirmed() or not kb.getText():
             if kb.isConfirmed(): 
-                xbmcgui.Dialog().notification('Oneplay', 'Je potřeba zadat vyhledávaný řetězec', xbmcgui.NOTIFICATION_ERROR, 3000)
+                display_message('Je potřeba zadat vyhledávaný řetězec')
             return
         query = kb.getText()
         save_search_history(query)

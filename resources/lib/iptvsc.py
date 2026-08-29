@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 import time
 
 from resources.lib.channels import Channels
-from resources.lib.utils import plugin_id, replace_by_html_entity
+from resources.lib.utils import plugin_id, replace_by_html_entity, display_message
 from resources.lib.epg import get_epg
 from resources.lib.recordings import add_recording
 
@@ -44,10 +44,10 @@ def generate_playlist(output_file=''):
     addon = xbmcaddon.Addon()
     output_dir = addon.getSetting('output_dir')
     if not output_dir:
-        xbmcgui.Dialog().notification('Oneplay', 'Nastav adresář pro playlist a EPG!', xbmcgui.NOTIFICATION_ERROR, 3000)
+        display_message('Nastav adresář pro playlist a EPG!')
         return
     if save_file_test() == 0:
-        xbmcgui.Dialog().notification('Oneplay', 'Chyba při uložení playlistu (test zápisu selhal)', xbmcgui.NOTIFICATION_ERROR, 3000)
+        display_message('Chyba při uložení playlistu (test zápisu selhal)')
         return
     if not output_file:
         ext = 'm3u' if addon.getSetting('playlist_filename') == 'playlist.m3u' else 'txt'
@@ -82,11 +82,11 @@ def generate_playlist(output_file=''):
         content = '\n'.join(playlist_lines) + '\n'
         if f.write(content):
             f.close()
-            xbmcgui.Dialog().notification('Oneplay', 'Playlist byl uložený', xbmcgui.NOTIFICATION_INFO, 3000)
+            display_message('Playlist byl uložený', 'info')
         else:
             raise IOError("Zápis do souboru selhal")
     except Exception:
-        xbmcgui.Dialog().notification('Oneplay', 'Chyba při uložení playlistu', xbmcgui.NOTIFICATION_ERROR, 3000)
+        display_message('Chyba při uložení playlistu')
 
 def generate_epg(output_file='', show_progress=True):
     """Generování EPG"""
@@ -96,10 +96,10 @@ def generate_epg(output_file='', show_progress=True):
     channels_list = channels.get_channels_list('channel_number')
     channels_list_by_id = channels.get_channels_list('id')
     if not channels_list:
-        xbmcgui.Dialog().notification('Oneplay', 'Nevrácena žádná data!', xbmcgui.NOTIFICATION_ERROR, 3000)
+        display_message('Nevrácena žádná data!')
         return
     if save_file_test() == 0:
-        xbmcgui.Dialog().notification('Oneplay', 'Chyba při uložení EPG (test zápisu selhal)', xbmcgui.NOTIFICATION_ERROR, 3000)
+        display_message('Chyba při uložení EPG (test zápisu selhal)')
         return
     if not output_file:
         output_dir = addon.getSetting('output_dir')
@@ -169,13 +169,13 @@ def generate_epg(output_file='', show_progress=True):
         f.close()
         if show_progress:
             dialog.close()
-            xbmcgui.Dialog().notification('Oneplay', 'EPG bylo uložené', xbmcgui.NOTIFICATION_INFO, 3000)
+            display_message('EPG bylo uložené', 'info')
         elif addon.getSetting('epg_info') == 'true':
-            xbmcgui.Dialog().notification('Oneplay', 'EPG bylo uložené', xbmcgui.NOTIFICATION_INFO, 3000)
+            display_message('EPG bylo uložené', 'info')
     except Exception:
         if f: f.close()
         if dialog: dialog.close()
-        xbmcgui.Dialog().notification('Oneplay', 'Chyba při generování EPG!', xbmcgui.NOTIFICATION_ERROR, 3000)
+        display_message('Chyba při generování EPG!')
 
 def iptv_sc_rec(channelName, startdatetime):
     """Zpracování nahrávek z IPTV SC"""
@@ -188,4 +188,4 @@ def iptv_sc_rec(channelName, startdatetime):
         contentId = payload.get('contentId', '')
         add_recording(contentId)
     else:
-        xbmcgui.Dialog().notification('Oneplay', 'Pořad v Oneplay nenalezen! Používáte EPG z doplňku Oneplay?', xbmcgui.NOTIFICATION_ERROR, 5000)
+        display_message('Pořad v Oneplay nenalezen! Používáte EPG z doplňku Oneplay?')

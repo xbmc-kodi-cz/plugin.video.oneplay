@@ -6,11 +6,11 @@ import xbmcplugin
 import xbmcaddon
 
 import json
-from resources.lib.settings import Settings
+from resources.lib.utils import Settings
 from resources.lib.api import API
 from resources.lib.epg import epg_listitem, get_item_detail
 from resources.lib.session import Session
-from resources.lib.utils import get_url, plugin_id, get_color, get_label_color
+from resources.lib.utils import get_url, plugin_id, get_color, get_label_color, display_message
 
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
@@ -32,11 +32,11 @@ def add_favourite(type, id, image, title):
     favourites = get_favourites()
     type_group = favourites.setdefault(type, {})
     if id in type_group:
-        xbmcgui.Dialog().notification('Oneplay', 'Pořad je již v oblíbených', xbmcgui.NOTIFICATION_ERROR, 5000)
+        display_message('Pořad je již v oblíbených')
         return
     type_group[id] = {'image': image, 'title': title}
     if save_favourites(favourites):
-        xbmcgui.Dialog().notification('Oneplay', 'Pořad byl přidaný do oblíbených', xbmcgui.NOTIFICATION_INFO, 5000)
+        display_message('Pořad byl přidaný do oblíbených', 'info')
 
 def remove_favourite(type, id):
     """Odebere položku z oblíbených"""
@@ -204,5 +204,5 @@ def add_favourites_episodes_bl(id):
             Settings().save_json_data(EPISODES_BL_FILE, json_data)
             xbmc.executebuiltin('Container.Refresh')
         except (TypeError, ValueError):
-            xbmcgui.Dialog().notification('Oneplay', 'Chyba při uložení skrytých epizod oblíbených pořadů', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Chyba při uložení skrytých epizod oblíbených pořadů')
 

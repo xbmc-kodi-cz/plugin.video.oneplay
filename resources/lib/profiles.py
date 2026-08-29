@@ -8,8 +8,7 @@ import xbmcplugin
 import json
 
 from resources.lib.api import API
-from resources.lib.utils import get_url
-from resources.lib.settings import Settings
+from resources.lib.utils import get_url, Settings, display_message
 
 PROFILES_FILE = {'filename' : 'profiles.txt', 'description' : 'profilů'}
 ACCOUNTS_FILE = {'filename' : 'accounts.txt', 'description' : 'účtů'}
@@ -31,20 +30,31 @@ def list_profiles(label):
 
 def set_active_profile(profile_id):
     """Nastavení profilu jako aktivního"""  
+    from resources.lib.session import Session
     profiles = get_profiles()
     for profile in profiles:
         profile['active'] = (profile['id'] == profile_id)
     Settings().save_json_data(file_info=PROFILES_FILE, data=json.dumps(profiles))
+    Session().reload_profile()
     xbmc.executebuiltin('Container.Refresh')
+
+def _load_profiles(settings):
+    """Načte a dekóduje lokálně uložené profily."""
+    profiles = settings.load_json_data(file_info=PROFILES_FILE)
+    try:
+        return json.loads(profiles) if profiles else []
+    except (json.decoder.JSONDecodeError, json.JSONDecodeError, TypeError):
+        return []
 
 def get_profiles(active=False, session=None):
     """Načtení uložených profilů. Pokud soubor neexistuje, načtou se profily z API"""  
     settings = Settings()
-    profiles = settings.load_json_data(file_info=PROFILES_FILE)
-    try:
-        profiles = json.loads(profiles) if profiles else []
-    except (json.decoder.JSONDecodeError, json.JSONDecodeError, TypeError):
-        profiles = []      
+    profiles = _load_profiles(settings)
+    if not profiles and session is None:
+        from resources.lib.session import Session
+        session = Session()
+        # Při vytvoření nové session se profily načtou během výběru profilu.
+        profiles = _load_profiles(settings)
     if not profiles:
         data = API().user_profiles_display(session=session)
         profiles = []
@@ -55,18 +65,25 @@ def get_profiles(active=False, session=None):
         return next((profile for profile in profiles if profile.get('active', False)), None)
     return profiles
 
-def get_profile_id(session):
+def get_profile_id(session, reset=False):
     """Vrátí aktuální profil"""
+    if reset:
+        reset_profiles(load_profiles=False)
     profile = get_profiles(active=True, session=session)
-    return profile['id']
+    return profile.get('id') if profile else None
 
 def reset_profiles(load_profiles=True):
-    """Odstraní uložené profilu a znovu je načte z API"""
+    """Odstraní uložené profily a znovu je načte z API"""
+    session = None
+    if load_profiles:
+        from resources.lib.session import Session
+        session = Session()
     settings = Settings()
     settings.reset_json_data(file_info=PROFILES_FILE)
     if load_profiles:
-        get_profiles()
-        xbmcgui.Dialog().notification('Oneplay', 'Profily byly znovu načtené', xbmcgui.NOTIFICATION_INFO, 5000)
+        get_profiles(session=session)
+        session.reload_profile()
+        display_message('Profily byly znovu načtené', 'info')
         xbmc.executebuiltin('Container.Refresh')
 
 def list_accounts(label):
@@ -95,7 +112,7 @@ def set_active_account(name):
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(accounts, f)
     except IOError:
-        xbmcgui.Dialog().notification('Oneplay', 'Chyba při uložení účtů', xbmcgui.NOTIFICATION_ERROR, 5000)
+        display_message('Chyba při uložení účtů')
         return
     reset_profiles(load_profiles=False)
     Session().remove_session()
@@ -115,7 +132,7 @@ def get_accounts(active=False, accounts_data=None):
                 if content:
                     accounts = json.loads(content)
         except (IOError, ValueError):
-            xbmcgui.Dialog().notification('Oneplay', 'Chyba při načtení účtů', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Chyba při načtení účtů')
     if not accounts and accounts_data:
         for i, name in enumerate(accounts_data):
             accounts.append({'name': name, 'active': (i == 0)})
@@ -123,7 +140,7 @@ def get_accounts(active=False, accounts_data=None):
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(accounts, f)
         except IOError:
-            xbmcgui.Dialog().notification('Oneplay', 'Chyba při uložení účtů', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Chyba při uložení účtů')
     if active:
         return next((acc for acc in accounts if acc.get('active')), None)
     return accounts
@@ -144,5 +161,5 @@ def reset_accounts():
     session.remove_session()
     channels = Channels()
     channels.reset_channels_full()
-    xbmcgui.Dialog().notification('Oneplay', 'Účty byly znovu načtené', xbmcgui.NOTIFICATION_INFO, 3000)    
+    display_message('Účty byly znovu načtené', 'info')    
   

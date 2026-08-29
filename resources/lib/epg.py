@@ -17,7 +17,7 @@ import time
 from resources.lib.session import Session
 from resources.lib.channels import Channels
 from resources.lib.api import API
-from resources.lib.utils import get_kodi_version, get_color, get_label_color
+from resources.lib.utils import get_kodi_version, get_color, get_label_color, display_message
 
 CURRENT_VERSION = 1
 DB_NAME = 'items_data.db'
@@ -60,9 +60,9 @@ def remove_db():
     if os.path.exists(db_path):
         try:
             os.remove(db_path)
-            xbmcgui.Dialog().notification('Oneplay', 'Keš dat pořadů byla vymazána', xbmcgui.NOTIFICATION_INFO, 3000)
+            display_message('Keš dat pořadů byla vymazána', 'info')
         except OSError:
-            xbmcgui.Dialog().notification('Oneplay', 'Chyba při mazání keše!', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Chyba při mazání keše!')
 
 def close_db(db):
     """Zavření DB"""

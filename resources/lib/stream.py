@@ -15,7 +15,7 @@ from urllib.parse import urlencode
 from resources.lib.session import Session
 from resources.lib.api import API
 from resources.lib.epg import get_epg
-from resources.lib.utils import is_json_string
+from resources.lib.utils import is_json_string, display_message
 
 def play_catchup(id, start_ts, end_ts):
     """Ošetřuje spuštění catchupu"""
@@ -152,7 +152,7 @@ def get_stream_url(post, mode):
         data = api.content_play(post=post, session=session)
         if not data or 'media' not in data:
             if data:
-                xbmcgui.Dialog().notification('Oneplay', 'Problém při přehrání', xbmcgui.NOTIFICATION_ERROR, 3000)
+                display_message('Problém při přehrání')
             return (None,) * 8
     if 'media' in data:
         url_hls, url_dash, url_dash_drm, drm = parse_media(data)
@@ -184,9 +184,9 @@ def play_stream(id, mode, direct=False):
             ts = int(time.mktime(time.strptime(id['deeplink']['time'][:-6], '%Y-%m-%dT%H:%M:%S')))
             get_epg(ts=ts, filter_channel_id=None, reset_cache=True)
             xbmc.executebuiltin('Container.Refresh')
-            xbmcgui.Dialog().notification('Oneplay', 'Pořad nelze přehrát, zkuste to znovu', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Pořad nelze přehrát, zkuste to znovu')
         else:
-            xbmcgui.Dialog().notification('Oneplay', 'Pořad nelze přehrát', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Pořad nelze přehrát')
         return
 
     post = {"payload": payload, "playbackCapabilities": {"protocols": ["dash", "hls"], "drm": ["widevine", "fairplay"], "altTransfer": "Unicast", "subtitle": {"formats": ["vtt"], "locations": ["InstreamTrackLocation", "ExternalTrackLocation"]}, "liveSpecificCapabilities": {"protocols": ["dash", "hls"], "drm": ["widevine", "fairplay"], "altTransfer": "Unicast", "multipleAudio": False}}}
@@ -202,7 +202,7 @@ def play_stream(id, mode, direct=False):
     elif url_hls:
         stream = ('hls', url_hls, None, next_url_hls, None)
     if not stream:
-        xbmcgui.Dialog().notification('Oneplay', 'Pořad nelze přehrát', xbmcgui.NOTIFICATION_ERROR, 3000)
+        display_message('Pořad nelze přehrát')
         return
 
     stream_type, url, drm, next_url, next_drm = stream

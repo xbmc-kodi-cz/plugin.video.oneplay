@@ -8,7 +8,7 @@ import xbmcaddon
 
 from urllib.parse import parse_qsl
 
-from resources.lib.utils import get_url, check_settings
+from resources.lib.utils import get_url, check_settings, display_message
 from resources.lib.live import list_live
 from resources.lib.epg import remove_db, clean_epg_cache
 from resources.lib.archive import list_archive, list_archive_days, list_program
@@ -129,7 +129,6 @@ def router(paramstring):
         set_active_account(params.get('name'))                      
     elif action == 'reset_accounts':
         reset_accounts()                         
-        Session().remove_session()
         xbmc.executebuiltin('Container.Refresh')
 
     elif action == 'manage_channels':
@@ -183,7 +182,7 @@ def router(paramstring):
         remove_db()
     elif action == 'remove_epg_cache':
         clean_epg_cache(days=-999)
-        xbmcgui.Dialog().notification('Oneplay',"EPG cache byla vymazána", xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message("EPG cache byla vymazána", 'info')
 
     elif action == 'iptsc_play_stream':
         if 'catchup_start_ts' in params and 'catchup_end_ts' in params:

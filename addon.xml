@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="2.2.4">
+﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="2.2.5">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="inputstream.adaptive" version="19.0.0"/>
@@ -38,6 +38,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
+v2.2.5 (29.8.2026)
+- sjednocení částí kódu s Oneplay Serverem
+- refaktoring kódu
+
 v2.2.4 (21.6.2026)
 - automatická aktualizace verze API
 - oprava posílání PINu u následujícího pořadu
@@ -51,10 +55,6 @@ v2.2.2 (11.6.2026)
 	    
 v2.2.1 (5.5.2026)
 - přidání thumbnailu do metadat pořadů
-
-v2.2.0 (3.5.2026)
-- oprava nahrávání z IPTV SC
-- oprava labelu v kontextovém menu
     </news>
     <assets>
         <icon>icon.jpg</icon>

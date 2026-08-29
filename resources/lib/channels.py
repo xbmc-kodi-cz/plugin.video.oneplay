@@ -15,11 +15,11 @@ import time
 import shutil
 from datetime import datetime
 
-from resources.lib.settings import Settings
+from resources.lib.utils import Settings
 from resources.lib.api import API
 from resources.lib.session import Session
 from resources.lib.profiles import get_profile_id
-from resources.lib.utils import get_url, plugin_id
+from resources.lib.utils import get_url, plugin_id, display_message
 
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
@@ -74,7 +74,7 @@ def edit_channel(channel_id):
         channels_nums = channels.get_channels_list('channel_number', visible_filter=False)
         if new_num in channels_nums:
             name = channels_nums[new_num]['name']
-            xbmcgui.Dialog().notification('Oneplay', f'Číslo {new_num} už má {name}', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message(f'Číslo {new_num} už má {name}')
         else:
             channels.set_number(channel_id, new_num)
             xbmc.executebuiltin('Container.Refresh')
@@ -97,7 +97,7 @@ def change_channels_numbers(from_number, direction):
         channels.change_channels_numbers(from_number, change)
         xbmc.executebuiltin('Container.Refresh')
     else:
-        xbmcgui.Dialog().notification('Oneplay', 'Zadejte platné číslo!', xbmcgui.NOTIFICATION_ERROR, 3000)
+        display_message('Zadejte platné číslo!')
 
 def list_channels_list_backups(label):
     """Vypíše seznam záloh kanálů"""
@@ -105,7 +105,7 @@ def list_channels_list_backups(label):
     channels = Channels() 
     backups = channels.get_backups()
     if not backups:
-        xbmcgui.Dialog().notification('Oneplay', 'Neexistuje žádná záloha', xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message('Neexistuje žádná záloha', 'info')
         return
     for path in sorted(backups, reverse=True): # Nejnovější nahoře
         filename = os.path.basename(path)
@@ -150,11 +150,11 @@ def add_channel_group():
         return
     group = input.getText().strip()
     if len(group) == 0:
-        xbmcgui.Dialog().notification('Oneplay', 'Je nutné zadat název skupiny', xbmcgui.NOTIFICATION_ERROR, 5000)
+        display_message('Je nutné zadat název skupiny')
         sys.exit()          
     channels_groups = Channels_groups()
     if group in channels_groups.groups:
-        xbmcgui.Dialog().notification('Oneplay', 'Název skupiny je už použitý', xbmcgui.NOTIFICATION_ERROR, 5000)
+        display_message('Název skupiny je už použitý')
         sys.exit()          
     channels_groups.add_channels_group(group)    
     xbmc.executebuiltin('Container.Refresh')
@@ -195,7 +195,7 @@ def select_channel_group(group):
     channels_groups.select_group(group)
     xbmc.executebuiltin('Container.Refresh')
     if group != 'all' and not channels_groups.channels.get(group):
-        xbmcgui.Dialog().notification('Oneplay', 'Skupina je prázdná', xbmcgui.NOTIFICATION_WARNING, 3000)
+        display_message('Skupina je prázdná')
 
 def edit_channel_group_list_channels(group, label):
     """Seznam kanálů pro editaci seznamu kanálů"""
@@ -345,7 +345,7 @@ class Channels:
         self.channels = {}
         self.valid_to = -1
         self.load_channels()
-        xbmcgui.Dialog().notification('Oneplay', 'Seznam kanálů byl resetován', xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message('Seznam kanálů byl resetován', 'info')
 
     def reset_channels(self):
         """Interaktivní reset s výběrem typu aktualizace."""
@@ -357,7 +357,7 @@ class Channels:
             self.valid_to = -1
             self.merge_channels()
             self.save_channels()
-            xbmcgui.Dialog().notification('Oneplay', 'Seznam kanálů byl aktualizován', xbmcgui.NOTIFICATION_INFO, 5000)
+            display_message('Seznam kanálů byl aktualizován', 'info')
         output_dir = addon.getSetting('output_dir')
         if output_dir:
             from resources.lib.iptvsc import generate_playlist
@@ -394,7 +394,7 @@ class Channels:
     def restore_channels(self, backup):
         """Obnoví kanály ze zálohy a prodlouží jejich platnost."""
         if not os.path.exists(backup):
-            xbmcgui.Dialog().notification('Oneplay', 'Záloha nenalezena', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Záloha nenalezena')
             return
 
         try:
@@ -404,13 +404,13 @@ class Channels:
                 data['valid_to'] = int(time.time() + 86400)
                 settings = Settings()
                 settings.save_json_data(self.CHANNELS_FILE, json.dumps(data))
-                xbmcgui.Dialog().notification('Oneplay', 'Seznam kanálů byl obnoven', xbmcgui.NOTIFICATION_INFO, 3000)
+                display_message('Seznam kanálů byl obnoven', 'info')
             else:
                 raise ValueError("Neplatný formát zálohy")
 
         except (json.JSONDecodeError, ValueError, IOError) as e:
             xbmc.log(f"Oneplay > Chyba při obnově: {str(e)}")
-            xbmcgui.Dialog().notification('Oneplay', 'Chyba při načtení zálohy', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Chyba při načtení zálohy')
 
     def merge_channels(self):
         """Merguje data z API s lokálně uloženými"""
@@ -533,4 +533,4 @@ class Channels_groups:
                     for channel_name in self.channels.get(group, []):
                         f.write(f"{group};{channel_name}\n")
         except IOError:
-            xbmcgui.Dialog().notification('Oneplay', 'Chyba uložení skupiny', xbmcgui.NOTIFICATION_ERROR, 3000)
+            display_message('Chyba uložení skupiny')

@@ -26,7 +26,7 @@ def check_settings():
     if not addon.getSetting('deviceid'):
         addon.setSetting('deviceid', str(uuid.uuid4()))
     if not addon.getSetting('username') or not addon.getSetting('password') or not addon.getSetting('deviceid'):
-        xbmcgui.Dialog().notification('Oneplay', 'V nastavení je nutné mít vyplněné všechny přihlašovací údaje', xbmcgui.NOTIFICATION_ERROR, 10000)
+        display_message('V nastavení je nutné mít vyplněné všechny přihlašovací údaje')
         sys.exit()
 
 def get_url(**kwargs):
@@ -105,3 +105,80 @@ def is_json_string(string):
     except ValueError as e:
         return False
     return True    
+
+def get_config_value(setting):
+    """Načtení proměnné z nastavení""" 
+    addon = xbmcaddon.Addon()
+    return addon.getSetting(setting)
+
+def log_message(message):
+    """Logování do Kodi.log"""
+    xbmc.log('Oneplay > ' + message) 
+
+def display_message(message, message_type = 'error'):
+    """Zobrazení notifikace """
+    if message_type == 'info':
+        message_type = xbmcgui.NOTIFICATION_INFO
+    else:
+        message_type = xbmcgui.NOTIFICATION_ERROR
+    xbmcgui.Dialog().notification('Oneplay', message, message_type, 3000)
+
+def display_dialog_yn(heading, message):
+    """Zobrazení yes/no dialogu"""
+    return xbmcgui.Dialog().yesno(heading, message)  
+
+def display_dialog_pin():
+    """Zobrazení dialogu pro zadání PINu"""
+    return xbmcgui.Dialog().numeric(type=0, heading='Zadejte PIN', bHiddenInput=True)
+
+class Settings:
+    def __init__(self):
+        self.addon = xbmcaddon.Addon()
+        self.addon_userdata_dir = translatePath(path = self.addon.getAddonInfo('profile'))
+        if not os.path.exists(self.addon_userdata_dir):
+            os.makedirs(self.addon_userdata_dir)
+
+    @property
+    def is_settings_ok(self):
+        """Kontroluje nastavení doplňku"""
+        if not self.addon.getSetting('username') or not self.addon.getSetting('password'):
+            display_message('V nastavení je nutné mít vyplněné přihlašovací údaje')
+            return False
+        return True
+
+    def _get_path(self, filename):
+        """Sestaví cestu k souboru"""
+        return os.path.join(self.addon_userdata_dir, filename)
+
+    def save_json_data(self, file_info, data):
+        """Uloží json data do souboru"""
+        if not self.is_settings_ok:
+            return
+        filename = self._get_path(file_info['filename'])
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write('%s\n' % data)
+        except (IOError, OSError) as e:
+            display_message(f"Chyba uložení {file_info.get('description', '')}")
+
+    def load_json_data(self, file_info):
+        """Načte data ze souboru. Vrací None, pokud soubor neexistuje nebo nejde načíst"""
+        if not self.is_settings_ok:
+            return None
+        filename = self._get_path(file_info['filename'])
+        if not os.path.exists(filename):
+            return None
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                return f.read().strip()
+        except (IOError, OSError):
+            return None
+
+    def reset_json_data(self, file_info):
+        """Smaže soubor s json daty"""
+        filename = self._get_path(file_info['filename'])
+        try:
+            if os.path.exists(filename):
+                os.remove(filename)
+        except (IOError, OSError):
+            pass

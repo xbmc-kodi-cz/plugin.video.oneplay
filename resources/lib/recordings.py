@@ -14,7 +14,7 @@ from resources.lib.channels import Channels
 from resources.lib.categories import page_category_display
 from resources.lib.epg import epg_listitem, get_epg
 from resources.lib.api import API
-from resources.lib.utils import get_url, plugin_id, day_translation, day_translation_short
+from resources.lib.utils import get_url, plugin_id, day_translation, day_translation_short, display_message
 
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
@@ -112,9 +112,9 @@ def add_recording(id):
     api = API()
     data = api.user_list_change(id, 'add', session)
     if data:
-        xbmcgui.Dialog().notification('Oneplay', 'Nahrávka přidána', xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message('Nahrávka přidána', 'info')
     else:
-        xbmcgui.Dialog().notification('Oneplay', 'Chyba při přidání nahrávky', xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message('Chyba při přidání nahrávky', 'info')
     xbmc.executebuiltin('Container.Refresh')
     
 def delete_recording(id):
@@ -123,7 +123,7 @@ def delete_recording(id):
     api = API()
     data = api.user_list_change(id, 'remove', session)
     if data:
-        xbmcgui.Dialog().notification('Oneplay', 'Nahrávka odstraněna', xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message('Nahrávka odstraněna', 'info')
     else:
-        xbmcgui.Dialog().notification('Oneplay', 'Chyba při mazání nahrávky', xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message('Chyba při mazání nahrávky', 'info')
     xbmc.executebuiltin('Container.Refresh')

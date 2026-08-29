@@ -11,7 +11,7 @@ from datetime import datetime
 from resources.lib.session import Session
 from resources.lib.api import API
 from resources.lib.epg import get_item_detail, epg_listitem, get_epg, get_live_epg
-from resources.lib.utils import get_url, plugin_id
+from resources.lib.utils import get_url, plugin_id, display_message
 
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
@@ -89,7 +89,7 @@ def parse_tiles(label, carousel, page):
             elif contentType in ['competition', 'team', 'collection']:
                 continue
             else:
-                xbmcgui.Dialog().notification('Oneplay',f"Neznámý contentType: {contentType}", xbmcgui.NOTIFICATION_INFO, 3000)
+                display_message(f"Neznámý contentType: {contentType}", 'info')
     if carousel.get('paging', {}).get('next', False) and carousel.get('paging').get('pageCount'): # pokud je v datech priznak, ze existuje dalsi strana, zobrazi se polozka pro prechod na nasledujici stranu
         page_count = carousel.get('paging').get('pageCount')
         payload = {'criteria': carousel['paging']['criteria'], 'carouselId': carousel['id'], 'paging': {'count': 24, 'position' : (page)*24+1}}
@@ -168,7 +168,7 @@ def parse_page_block(block, params, label):
     elif schema == 'PromoCarouselBlock': # ignoruje se
         pass
     else:    
-        xbmcgui.Dialog().notification('Oneplay',f"Neznámé block schema: {schema}", xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message(f"Neznámé block schema: {schema}", 'info')
 
 def page_category_display(label, params):
     """Načtení kategorie"""
@@ -193,7 +193,7 @@ def page_search_display(query):
                 parse_tiles(None, carousel, 1)
         xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)              
     else:                
-        xbmcgui.Dialog().notification('Oneplay','Nic nenalezeno', xbmcgui.NOTIFICATION_INFO, 3000)
+        display_message('Nic nenalezeno', 'info')
 
 def get_item(label, title, schema, call, params):
     """Generuje položky hlavního menu"""
@@ -206,7 +206,7 @@ def get_item(label, title, schema, call, params):
             list_item.addContextMenuItems(menu)
             xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
             return
-    xbmcgui.Dialog().notification('Oneplay',f"Neznámé schema: {schema} {call}", xbmcgui.NOTIFICATION_INFO, 3000)
+    display_message(f"Neznámé schema: {schema} {call}", 'info')
 
 def list_filters(label, params):
     """Zobrazí filtrz (žánry)"""
