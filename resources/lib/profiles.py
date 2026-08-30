@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import sys
 import os
 import xbmc
@@ -8,7 +8,7 @@ import xbmcplugin
 import json
 
 from resources.lib.api import API
-from resources.lib.utils import get_url, Settings, display_message
+from resources.lib.utils import get_url, display_message, Settings
 
 PROFILES_FILE = {'filename' : 'profiles.txt', 'description' : 'profilů'}
 ACCOUNTS_FILE = {'filename' : 'accounts.txt', 'description' : 'účtů'}
@@ -30,33 +30,30 @@ def list_profiles(label):
 
 def set_active_profile(profile_id):
     """Nastavení profilu jako aktivního"""  
-    from resources.lib.session import Session
     profiles = get_profiles()
     for profile in profiles:
         profile['active'] = (profile['id'] == profile_id)
     Settings().save_json_data(file_info=PROFILES_FILE, data=json.dumps(profiles))
-    Session().reload_profile()
     xbmc.executebuiltin('Container.Refresh')
-
-def _load_profiles(settings):
-    """Načte a dekóduje lokálně uložené profily."""
-    profiles = settings.load_json_data(file_info=PROFILES_FILE)
-    try:
-        return json.loads(profiles) if profiles else []
-    except (json.decoder.JSONDecodeError, json.JSONDecodeError, TypeError):
-        return []
 
 def get_profiles(active=False, session=None):
     """Načtení uložených profilů. Pokud soubor neexistuje, načtou se profily z API"""  
     settings = Settings()
-    profiles = _load_profiles(settings)
+    profiles = settings.load_json_data(file_info=PROFILES_FILE)
+    try:
+        profiles = json.loads(profiles) if profiles else []
+    except (json.decoder.JSONDecodeError, json.JSONDecodeError, TypeError):
+        profiles = []
     if not profiles and session is None:
         from resources.lib.session import Session
         session = Session()
-        # Při vytvoření nové session se profily načtou během výběru profilu.
-        profiles = _load_profiles(settings)
+        profiles_data = settings.load_json_data(file_info=PROFILES_FILE)
+        try:
+            profiles = json.loads(profiles_data) if profiles_data else []
+        except (json.decoder.JSONDecodeError, json.JSONDecodeError, TypeError):
+            profiles = []
     if not profiles:
-        data = API().user_profiles_display(session=session)
+        data = API().user_profiles_display(session=session) or {}
         profiles = []
         for i, profile in enumerate(data.get('availableProfiles', {}).get('profiles', [])):
             profiles.append({'id': profile['profile']['id'], 'name': profile['profile']['name'], 'image': profile['profile']['avatarUrl'], 'active': (i == 0)})
@@ -65,24 +62,17 @@ def get_profiles(active=False, session=None):
         return next((profile for profile in profiles if profile.get('active', False)), None)
     return profiles
 
-def get_profile_id(session, reset=False):
+def get_profile_id(session):
     """Vrátí aktuální profil"""
-    if reset:
-        reset_profiles(load_profiles=False)
     profile = get_profiles(active=True, session=session)
-    return profile.get('id') if profile else None
+    return profile['id']
 
 def reset_profiles(load_profiles=True):
-    """Odstraní uložené profily a znovu je načte z API"""
-    session = None
-    if load_profiles:
-        from resources.lib.session import Session
-        session = Session()
+    """Odstraní uložené profilu a znovu je načte z API"""
     settings = Settings()
     settings.reset_json_data(file_info=PROFILES_FILE)
     if load_profiles:
-        get_profiles(session=session)
-        session.reload_profile()
+        get_profiles()
         display_message('Profily byly znovu načtené', 'info')
         xbmc.executebuiltin('Container.Refresh')
 

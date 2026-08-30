@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # SHARED: Oneplay, Oneplay Server, TVheadend
 import gzip
 import json
@@ -12,7 +12,14 @@ from urllib.request import Request, urlopen
 
 from websocket import create_connection
 
-from resources.lib.utils import Settings, display_dialog_pin, display_dialog_yn, display_message, get_config_value,log_message
+from resources.lib.utils import (
+    Settings,
+    display_dialog_pin,
+    display_dialog_yn,
+    display_message,
+    get_config_value,
+    log_message,
+)
 
 
 class API:
@@ -180,45 +187,33 @@ class API:
                 self.error_handling(error_detail)
         return response.get('result', {}).get('data')
 
+# SHARED: funkce je rozdílná ve Oneplay a Oneplay Server/TVheadend
     def user_login_step(self, username, password):
         """Přihlášení s podporou výběru účtu (ShowAccountChooserStep)"""
-        post = {
-            "payload": {
-                "command": {
-                    "schema": "LoginWithCredentialsCommand",
-                    "email": username,
-                    "password": password,
-                }
-            }
-        }
+        post = {"payload": {"command": {"schema": "LoginWithCredentialsCommand", "email": username, "password": password}}}
         response = self.call_api('user.login.step', data=post, sensitive=True)
         if response.get('result', {}).get('status') != 'Ok':
             response = self.call_api('user.login.step', data=post, sensitive=True)
         data = self._check_response(response, 'Problém při přihlášení')
-        step = data.get('step', {})
-        if step.get('schema') == 'ShowAccountChooserStep':
-            accounts = [
-                account
-                for group in (step.get('groups') or [])
-                for account in (group.get('accounts') or [])
-                if account.get('accountId')
-            ]
-            account = next((item for item in accounts if item.get('isActive')), None)
-            account = account or (accounts[0] if accounts else {})
-            if not account:
-                self.error_handling('Nebyl nalezen žádný dostupný účet')
-            post_account = {
-                "payload": {
-                    "command": {
-                        "schema": "LoginWithAccountCommand",
-                        "accountId": account.get('accountId'),
-                        "authCode": step.get('authToken'),
-                    }
-                }
-            }
-            response = self.call_api('user.login.step', data=post_account)
-            return self._check_response(response, 'Problém při výběru účtu')
-        return data
+        if data.get('step', {}).get('schema') == 'ShowAccountChooserStep': # pokud je vyžadovaný výběr účtu
+            from resources.lib.profiles import get_account_id
+            auth_token = data['step']['authToken']
+            accounts_map = {}
+            accounts_list = []
+            for group in data['step'].get('groups', []):
+                for acc in group.get('accounts', []):
+                    if acc.get('extId') or acc.get('isActive'):
+                        suffix = acc.get('extId') or acc.get('accountProvider', 'Unknown')
+                        display_name = f"{acc['name']}|{suffix}"
+                        accounts_map[display_name] = acc['accountId']
+                        accounts_list.append(display_name)
+            selected_name = get_account_id(accounts_list)
+            account_id = accounts_map.get(selected_name)
+            if not account_id:
+                 account_id = next((id for name, id in accounts_map.items() if name.startswith(selected_name)), None)
+            post_account = {"payload": {"command": {"schema": "LoginWithAccountCommand", "accountId": account_id, "authCode": auth_token}}}
+            return self._check_response(self.call_api('user.login.step', data=post_account), 'Problém při výběru účtu')
+        return data        
 
     def user_device_change(self, id, name, session):
         """Přejmenování zařízení"""
