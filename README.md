@@ -7,7 +7,7 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 </p>
 <p>
 v2.2.6 (30.8.2026)<br>
-- úprava práce s pprofily a vytvoření session<br>
+- úprava práce s profily a vytvoření session<br>
 
 v2.2.5 (29.8.2026)<br>
 - sjednocení částí kódu s Oneplay Serverem<<br>

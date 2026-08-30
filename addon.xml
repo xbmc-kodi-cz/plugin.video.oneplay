@@ -39,7 +39,7 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
 v2.2.6 (30.8.2026)
-- úprava práce s pprofily a vytvoření session
+- úprava práce s profily a vytvoření session
 
 v2.2.5 (29.8.2026)
 - sjednocení částí kódu s Oneplay Serverem

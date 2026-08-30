@@ -1,5 +1,5 @@
 v2.2.6 (30.8.2026)
-- úprava práce s pprofily a vytvoření session
+- úprava práce s profily a vytvoření session
 
 v2.2.5 (29.8.2026)
 - sjednocení částí kódu s Oneplay Serverem
