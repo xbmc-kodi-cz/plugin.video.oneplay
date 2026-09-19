@@ -1,4 +1,4 @@
-﻿﻿# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # SHARED: Oneplay, Oneplay Server, TVheadend
 import gzip
 import json

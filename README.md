@@ -6,7 +6,7 @@ VOD, živé vysílání, archiv, nahrávky, vytváření playlistu a EPG pro IPT
 <a href="https://www.xbmc-kodi.cz/prispevek-oneplay">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 </p>
 <p>
-v2.2.7 (19.9.2026)<br>
+v2.2.7/8 (19.9.2026)<br>
 - přidání možnosti přehrát živé vysílání od začátku do kontextového menu IPTV SC i doplňku<br><br>
 
 v2.2.6 (30.8.2026)<br>

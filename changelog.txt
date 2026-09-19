@@ -1,4 +1,4 @@
-v2.2.7 (19.9.2026)
+v2.2.7/8 (19.9.2026)
 - přidání možnosti přehrát živé vysílání od začátku do kontextového menu IPTV SC i doplňku
 
 v2.2.6 (30.8.2026)
