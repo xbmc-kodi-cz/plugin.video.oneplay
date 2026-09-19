@@ -1,5 +1,8 @@
+v2.2.7 (19.9.2026)
+- přidání možnosti přehrát živé vysílání od začátku do kontextového menu IPTV SC i doplňku
+
 v2.2.6 (30.8.2026)
-- úprava práce s profily a vytvoření session
+- úprava práce s pprofily a vytvoření session
 
 v2.2.5 (29.8.2026)
 - sjednocení částí kódu s Oneplay Serverem
@@ -13,6 +16,3 @@ v2.2.4 (21.6.2026)
 v2.2.3 (13.6.2026)
 - oprava načítání účtů
 - oprava parsování výsledků vyhledávání
-
-v2.2.2 (11.6.2026)
-- úprava verze API a aplikace

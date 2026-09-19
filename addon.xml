@@ -12,10 +12,16 @@
   <extension library="service.py" point="xbmc.service"/>
   <extension point="kodi.context.item">
     <menu id="kodi.core.main">
+      <item library="iptvsc_play.py">
+          <label>Živě od začátku (Oneplay)</label>
+          <visible>
+            Window.IsActive(MyPVRGuide.xml) | Window.IsActive(MyPVRChannels.xml)
+          </visible>
+      </item> 
       <item library="iptvsc_rec.py">
           <label>Nahrát v Oneplay</label>
           <visible>
-            Window.IsActive(10702)
+            Window.IsActive(MyPVRGuide.xml)
           </visible>
       </item> 
     </menu>         
@@ -38,8 +44,11 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
+v2.2.7 (19.9.2026)
+- přidání možnosti přehrát živé vysílání od začátku do kontextového menu IPTV SC i doplňku
+
 v2.2.6 (30.8.2026)
-- úprava práce s profily a vytvoření session
+- úprava práce s pprofily a vytvoření session
 
 v2.2.5 (29.8.2026)
 - sjednocení částí kódu s Oneplay Serverem
@@ -52,9 +61,6 @@ v2.2.4 (21.6.2026)
 v2.2.3 (13.6.2026)
 - oprava načítání účtů
 - oprava parsování výsledků vyhledávání
-
-v2.2.2 (11.6.2026)
-- úprava verze API a aplikace 
     </news>
     <assets>
         <icon>icon.jpg</icon>

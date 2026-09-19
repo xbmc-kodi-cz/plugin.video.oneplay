@@ -81,7 +81,7 @@ def get_keepalive_url(manifest, content):
         pass
     return None    
 
-def get_list_item(manifest_type, url, drm, next_url, next_drm):
+def get_list_item(manifest_type, url, drm, next_url, next_drm, fromstart):
     """Vytvoření list_item a spuštění (v případě dalšího pořadu přidání do playlistu)"""
     addon = xbmcaddon.Addon()
     headers = urlencode({'User-Agent': API().UA, 'Accept': '*/*'})
@@ -93,6 +93,8 @@ def get_list_item(manifest_type, url, drm, next_url, next_drm):
         prop('inputstream.adaptive.manifest_type', manifest_type)
         prop('inputstream.adaptive.stream_headers', headers)
         prop('inputstream.adaptive.manifest_headers', headers)
+        if fromstart:
+            prop('inputstream.adaptive.play_timeshift_buffer', 'true')
         if manifest_type == 'mpd':
             item.setMimeType('application/dash+xml')
         if item_drm:
@@ -166,7 +168,7 @@ def get_stream_url(post, mode):
             next_url_hls, next_url_dash, next_url_dash_drm, next_drm = parse_media(offer_data)
     return url_hls, url_dash, url_dash_drm, drm, next_url_hls, next_url_dash, next_url_dash_drm, next_drm
 
-def play_stream(id, mode, direct=False):
+def play_stream(id, mode, direct=False, fromstart=False):
     """Zajišťuje přehrání streamu"""
     addon = xbmcaddon.Addon()
     api = API()
@@ -207,7 +209,7 @@ def play_stream(id, mode, direct=False):
 
     stream_type, url, drm, next_url, next_drm = stream
     url, keepalive = get_manifest_redirect(url)
-    get_list_item(stream_type, url, drm, next_url, next_drm)
+    get_list_item(stream_type, url, drm, next_url, next_drm, fromstart)
 
     # zajišťuje posílání keepalive požadavků kvůli, aby nedošlo k přerušení streamu např. při pauze
     if keepalive: 

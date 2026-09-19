@@ -113,7 +113,7 @@ def router(paramstring):
         delete_search(params.get('query'))
 
     elif action == 'play_live':
-        play_stream(params.get('id'), params.get('mode'), params.get('direct'))
+        play_stream(params.get('id'), params.get('mode'), params.get('direct'), 'fromstart' in params)
     elif action == 'play_archive':
         play_stream(params.get('id'), 'archive', params.get('direct'))
 
@@ -188,9 +188,8 @@ def router(paramstring):
         if 'catchup_start_ts' in params and 'catchup_end_ts' in params:
             play_catchup(id=params.get('id'), start_ts=params.get('catchup_start_ts'), end_ts=params.get('catchup_end_ts'))
         else:
-            import json 
             stream_id = {"criteria":{"schema":"ContentCriteria","contentId":"channel." + params.get('id')},"startMode":"start"}
-            play_stream(stream_id, 'start', True)
+            play_stream(stream_id, 'start', True, 'fromstart' in params)
     elif action == 'iptv_sc_rec':
         iptv_sc_rec(params.get('channel'), params.get('startdatetime'))
 

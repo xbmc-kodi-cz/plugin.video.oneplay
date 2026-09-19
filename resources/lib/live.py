@@ -5,7 +5,7 @@ import xbmcplugin
 import xbmcaddon
 
 from datetime import datetime
-import time
+from urllib.parse import quote
 import json
 
 from resources.lib.channels import Channels 
@@ -42,12 +42,12 @@ def list_live(label):
         list_item.setContentLookup(False)
         icon = channel['logo']
         direct = True
-        id = {"criteria": {"schema": "ContentCriteria", "contentId": f"channel.{channel_id}"}, "startMode": "start"}
+        id = {"criteria": {"schema": "ContentCriteria", "contentId": f"channel.{channel_id}", "time": "2026-09-19T07:00:00+02:00"}, "startMode": "start"}
         if channel_id in epg:
             item = epg[channel_id]
             id = item['payload']
             if 'deeplink' not in item['payload']:
-                id = {"criteria": {"schema": "ContentCriteria", "contentId": f"channel.{channel_id}"}, "startMode": "start"}
+                id = {"criteria": {"schema": "ContentCriteria", "contentId": f"channel.{channel_id}",  "time": "2026-09-19T07:00:00+02:00"}, "startMode": "start"}
                 direct = True
             else:
                 direct = False
@@ -66,7 +66,8 @@ def list_live(label):
                 infotag.setTitle(item['title'])
             else:
                 list_item.setInfo('video', {'plot': plot, 'title': item['title']})
-            menus = [( 'Přidat nahrávku', f'RunPlugin(plugin://{plugin_id}?action=add_recording&id={item["payload"]["contentId"]})' )]
+            menus = [('Přehrát od začátku', f"PlayMedia(plugin://{plugin_id}?action=play_live&id={quote(json.dumps(id))}&direct={direct}&mode=start&title={channel['name']}&fromstart=True)"),
+                    ( 'Přidat nahrávku', f'RunPlugin(plugin://{plugin_id}?action=add_recording&id={item["payload"]["contentId"]})' )]
             list_item.addContextMenuItems(menus)
         else: # pokud se nepodaří načíst data ke kanálu v EPG
             list_item.setArt({'thumb': icon, 'icon': icon})
@@ -74,6 +75,8 @@ def list_live(label):
                 list_item.getVideoInfoTag().setTitle(channel['name'])
             else:
                 list_item.setInfo('video', {'mediatype': 'movie', 'title': channel['name']})
+            menus = [('Přehrát od začátku', f"PlayMedia(plugin://{plugin_id}?action=play_live&id={quote(json.dumps(id))}&direct={direct}&mode=start&title={channel['name']}&fromstart=True)")]
+            list_item.addContextMenuItems(menus)
         url = get_url(action='play_live', id=json.dumps(id), direct=direct, mode='start', title=channel['name'])
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc=True)
