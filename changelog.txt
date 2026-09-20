@@ -1,3 +1,6 @@
+v2.2.9 (20.9.2026)
+- oprava spouštění živého vysílání
+
 v2.2.7/8 (19.9.2026)
 - přidání možnosti přehrát živé vysílání od začátku do kontextového menu IPTV SC i doplňku
 
@@ -12,7 +15,3 @@ v2.2.4 (21.6.2026)
 - automatická aktualizace verze API
 - oprava posílání PINu u následujícího pořadu
 - oprava přehrávání
-
-v2.2.3 (13.6.2026)
-- oprava načítání účtů
-- oprava parsování výsledků vyhledávání

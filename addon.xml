@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="2.2.8">
+﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="2.2.9">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="inputstream.adaptive" version="19.0.0"/>
@@ -44,6 +44,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
+v2.2.9 (20.9.2026)
+- oprava spouštění živého vysílání
+
 v2.2.7/8 (19.9.2026)
 - přidání možnosti přehrát živé vysílání od začátku do kontextového menu IPTV SC i doplňku
 
@@ -57,10 +60,6 @@ v2.2.5 (29.8.2026)
 v2.2.4 (21.6.2026)
 - automatická aktualizace verze API
 - oprava posílání PINu u následujícího pořadu
-
-v2.2.3 (13.6.2026)
-- oprava načítání účtů
-- oprava parsování výsledků vyhledávání
     </news>
     <assets>
         <icon>icon.jpg</icon>

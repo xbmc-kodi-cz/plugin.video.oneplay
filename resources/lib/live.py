@@ -42,12 +42,12 @@ def list_live(label):
         list_item.setContentLookup(False)
         icon = channel['logo']
         direct = True
-        id = {"criteria": {"schema": "ContentCriteria", "contentId": f"channel.{channel_id}", "time": "2026-09-19T07:00:00+02:00"}, "startMode": "start"}
+        id = {"criteria": {"schema": "ContentCriteria", "contentId": f"channel.{channel_id}"}, "startMode": "start"}
         if channel_id in epg:
             item = epg[channel_id]
             id = item['payload']
             if 'deeplink' not in item['payload']:
-                id = {"criteria": {"schema": "ContentCriteria", "contentId": f"channel.{channel_id}",  "time": "2026-09-19T07:00:00+02:00"}, "startMode": "start"}
+                id = {"criteria": {"schema": "ContentCriteria", "contentId": f"channel.{channel_id}"}, "startMode": "start"}
                 direct = True
             else:
                 direct = False
