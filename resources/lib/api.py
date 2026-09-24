@@ -251,8 +251,9 @@ class API:
         if result.get('status') == 'Ok':
             return result.get('data')
         if result.get('message') == 'Profil nenalezen' and not is_retry:
-            from resources.lib.profiles import get_profile_id
-            new_profile_id = get_profile_id(session, reset=True)
+            from resources.lib.profiles import get_profile_id, reset_profiles
+            reset_profiles(load_profiles=False)
+            new_profile_id = get_profile_id(session)            
             return self.user_profile_select(new_profile_id, profile_pin, session, is_retry=True)
         error_detail = result.get('message', 'Neznámá chyba')
         display_message('Chyba při výběru profilu')

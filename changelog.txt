@@ -1,3 +1,6 @@
+v2.3.0 (24.9.2026)
+- vynucený reset profilu, pokud vybraný profil neexistuje
+
 v2.2.9 (20.9.2026)
 - oprava spouštění živého vysílání
 
@@ -10,8 +13,3 @@ v2.2.6 (30.8.2026)
 v2.2.5 (29.8.2026)
 - sjednocení částí kódu s Oneplay Serverem
 - refaktoring kódu
-
-v2.2.4 (21.6.2026)
-- automatická aktualizace verze API
-- oprava posílání PINu u následujícího pořadu
-- oprava přehrávání
