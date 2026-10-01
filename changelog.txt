@@ -1,3 +1,7 @@
+v2.3.1 (1.10.2026)
+- úprava volání API
+- změny v API Oneplay
+
 v2.3.0 (24.9.2026)
 - vynucený reset profilu, pokud vybraný profil neexistuje
 
@@ -9,7 +13,3 @@ v2.2.7/8 (19.9.2026)
 
 v2.2.6 (30.8.2026)
 - úprava práce s pprofily a vytvoření session
-
-v2.2.5 (29.8.2026)
-- sjednocení částí kódu s Oneplay Serverem
-- refaktoring kódu

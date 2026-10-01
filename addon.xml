@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="2.3.0">
+﻿<addon id="plugin.video.oneplay" name="Oneplay" provider-name="waladir" version="2.3.1">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="inputstream.adaptive" version="19.0.0"/>
@@ -44,6 +44,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.oneplay</source>
     <news>
+v2.3.1 (1.10.2026)
+- úprava volání API
+- změny v API Oneplay
+
 v2.3.0 (24.9.2026)
 - vynucený reset profilu, pokud vybraný profil neexistuje
 
@@ -55,10 +59,6 @@ v2.2.7/8 (19.9.2026)
 
 v2.2.6 (30.8.2026)
 - úprava práce s pprofily a vytvoření session
-
-v2.2.5 (29.8.2026)
-- sjednocení částí kódu s Oneplay Serverem
-- refaktoring kódu
     </news>
     <assets>
         <icon>icon.jpg</icon>
