@@ -1,4 +1,4 @@
-v2.3.3 (4.10.2026)
+v2.3.3 (15.10.2026)
 - úprava hlavičky
 - logování požadavků
 - rozšíření výsledků vyhledávání
