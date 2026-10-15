@@ -1,3 +1,10 @@
+v2.3.3 (4.10.2026)
+- úprava hlavičky
+- logování požadavků
+- rozšíření výsledků vyhledávání
+- přidání typu obsahu podcast
+- vytvožení nové sessiony po změně profilu
+
 v2.3.2 (1.10.2026)
 - oprava překlepu
 
@@ -10,6 +17,3 @@ v2.3.0 (24.9.2026)
 
 v2.2.9 (20.9.2026)
 - oprava spouštění živého vysílání
-
-v2.2.7/8 (19.9.2026)
-- přidání možnosti přehrát živé vysílání od začátku do kontextového menu IPTV SC i doplňku

@@ -84,6 +84,7 @@ class API:
     def load_ua(self):
         """Načte session, kontroluje integritu a expiraci"""
         settings = Settings()
+        self.UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0'
         data = settings.load_json_data(file_info=self.UA_FILE)
         if data:
             try:
@@ -99,7 +100,7 @@ class API:
             response = urlopen('https://product-details.mozilla.org/1.0/firefox_versions.json', timeout=10)
             data = response.read()
             data = json.loads(data) if data else {}
-            version = data.get('LATEST_FIREFOX_VERSION', '148.0')
+            version = data.get('LATEST_FIREFOX_VERSION', '157.0')
             self.UA = f"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:{version}) Gecko/20100101 Firefox/{version}"
         except Exception:            
             pass
@@ -124,7 +125,7 @@ class API:
         debug = get_config_value('debug') in (1, '1', -1, '-1', 'true')
         if get_config_value('log_request_url') == 'true' or debug:
             log_message(f"Oneplay > {url}")
-        if (get_config_value('log_request_data') == 'true' or debug) and data is not None and not sensitive:
+        if (get_config_value('log_request_url') == 'true' or debug) and data is not None and not sensitive:
             log_message(f"Oneplay > {data}")
 
         ws = None

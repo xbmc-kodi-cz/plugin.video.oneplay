@@ -71,7 +71,7 @@ def parse_tiles(label, carousel, page):
                 menu_label = 'Smazat nahrávku' if is_recording else 'Přidat nahrávku'
                 action = 'delete_recording' if is_recording else 'add_recording'
                 menu.append([menu_label, f"RunPlugin(plugin://{plugin_id}?action={action}&id={contentId})"])
-            if contentType in ['show']:
+            if contentType in ['show','podcast']:
                 url = get_url(action='list_show', id=json.dumps(data.get('payload') or id), label=f"{label} / {tile['title']}" if label else tile['title'])
                 menu.append(['Přidat do oblíbených Oneplay', f"RunPlugin(plugin://{plugin_id}?action=add_favourite&type=show&id={contentId}&image={data.get('cover')}&title={tile.get('title')})"])
                 list_item.addContextMenuItems(menu)
@@ -188,9 +188,18 @@ def page_search_display(query):
     data = api.page_search_display(query, session)
     if 'blocks' in data['layout']:
         for block in data['layout']['blocks']:
-            if block['schema'] == 'TabBlock' and 'layout' in block and 'blocks' in block['layout'] and 'carousels' in block['layout']['blocks'][0]:
-                carousel = block['layout']['blocks'][0]['carousels'][0]
-                parse_tiles(None, carousel, 1)
+            if block['schema'] == 'TabBlock' and 'layout' in block and 'blocks' in block['layout']:
+                seen = set()
+                for layout_block in block['layout']['blocks']:
+                    for carousel in layout_block.get('carousels', []):
+                        if carousel.get('tracking', {}).get('title') not in ['Brzo v TV']:
+                            tiles = []
+                            for tile in carousel.get('tiles', []):
+                                key = json.dumps(tile.get('action', {}).get('params', {}).get('payload'), sort_keys=True)
+                                if key not in seen:
+                                    seen.add(key)
+                                    tiles.append(tile)
+                            parse_tiles(None, dict(carousel, tiles=tiles), 1)    
         xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)              
     else:                
         display_message('Nic nenalezeno', 'info')

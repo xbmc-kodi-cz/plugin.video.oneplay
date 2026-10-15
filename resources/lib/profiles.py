@@ -34,6 +34,8 @@ def set_active_profile(profile_id):
     for profile in profiles:
         profile['active'] = (profile['id'] == profile_id)
     Settings().save_json_data(file_info=PROFILES_FILE, data=json.dumps(profiles))
+    from resources.lib.session import Session
+    Session().remove_session()
     xbmc.executebuiltin('Container.Refresh')
 
 def get_profiles(active=False, session=None):

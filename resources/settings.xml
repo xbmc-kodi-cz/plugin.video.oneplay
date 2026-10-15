@@ -50,7 +50,7 @@
                 <setting label="Odstranit Widevine CDM..." type="action" action="RunScript(script.module.inputstreamhelper, widevine_remove)" visible="!system.platform.android"/>     
 	</category>    
     <category label="Logování">
-                <setting label="Logování požadavků - URL" type="bool" id="log_request_url" default="false"/>
+                <setting label="Logování požadavků" type="bool" id="log_request_url" default="false"/>
                 <setting label="Logování odpovědí" type="bool" id="log_response" default="false"/>
                 <setting label="Nelogovat velké odpovědi" type="bool" id="skip_long" default="true"/>
 	</category>
